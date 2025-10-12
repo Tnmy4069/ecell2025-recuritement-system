@@ -68,6 +68,49 @@ function normalizeBoolean(value) {
   return false;
 }
 
+// Function to normalize role values (handle emoji issues)
+function normalizeRoleValue(value) {
+  if (!value) return '';
+  
+  const roleMap = {
+    // Handle broken emoji characters
+    '?? Documentation (The storytellers)': '📝 Documentation (The storytellers)',
+    '?? Marketing & Sponsorship (Bring home the bacon)': '🤝 Marketing & Sponsorship (Bring home the bacon)', 
+    '?? Events (Chaos coordinator extraordinaire)': '🎉 Events (Anchoring & Chaos coordinator extraordinaire)',
+    '?? Events (Anchoring & Chaos coordinator extraordinaire)': '🎉 Events (Anchoring & Chaos coordinator extraordinaire)',
+    '?? Design Team (Make it pretty. Make it pop.)': '🎨 Design Team (Make it pretty. Make it pop. CANVA or VideoEditing Must)',
+    '?? Design Team (Make it pretty. Make it pop. CANVA or VideoEditing Must)': '🎨 Design Team (Make it pretty. Make it pop. CANVA or VideoEditing Must)',
+    '?? Technical / Web (Code is poetry, right?)': '💻 Technical / Web (Code is poetry, right?)',
+    '?? Operations (The backbone. The MVP.)': '⚙️ Operations (The backbone. The MVP.)',
+    '??Photography/Videography ( click photos & videos that made everyone look like startup founders in a Netflix documentary)': '📸Photography/Videography ( click photos & videos that made everyone look like startup founders in a Netflix documentary)',
+    
+    // Also handle variations without emojis
+    'Documentation (The storytellers)': '📝 Documentation (The storytellers)',
+    'Marketing & Sponsorship (Bring home the bacon)': '🤝 Marketing & Sponsorship (Bring home the bacon)',
+    'Events (Chaos coordinator extraordinaire)': '🎉 Events (Anchoring & Chaos coordinator extraordinaire)',
+    'Events (Anchoring & Chaos coordinator extraordinaire)': '🎉 Events (Anchoring & Chaos coordinator extraordinaire)',
+    'Design Team (Make it pretty. Make it pop.)': '🎨 Design Team (Make it pretty. Make it pop. CANVA or VideoEditing Must)',
+    'Design Team (Make it pretty. Make it pop. CANVA or VideoEditing Must)': '🎨 Design Team (Make it pretty. Make it pop. CANVA or VideoEditing Must)',
+    'Technical / Web (Code is poetry, right?)': '💻 Technical / Web (Code is poetry, right?)',
+    'Operations (The backbone. The MVP.)': '⚙️ Operations (The backbone. The MVP.)',
+    'Photography/Videography ( click photos & videos that made everyone look like startup founders in a Netflix documentary)': '📸Photography/Videography ( click photos & videos that made everyone look like startup founders in a Netflix documentary)'
+  };
+  
+  // Try exact match first
+  if (roleMap[value]) {
+    return roleMap[value];
+  }
+  
+  // Try partial match
+  for (const [key, mappedValue] of Object.entries(roleMap)) {
+    if (value.includes(key) || key.includes(value)) {
+      return mappedValue;
+    }
+  }
+  
+  return value;
+}
+
 export async function POST(request) {
   try {
     await dbConnect();
@@ -138,13 +181,13 @@ export async function POST(request) {
               const isFromNashik = normalizeBoolean(record[columnMapping.isFromNashik]);
               const department = record[columnMapping.department] || '';
               const yearOfStudy = record[columnMapping.yearOfStudy] || '';
-              const firstPreference = record[columnMapping.firstPreference] || '';
-              const secondaryRole = record[columnMapping.secondaryRole] || '';
+              const firstPreference = normalizeRoleValue(record[columnMapping.firstPreference] || '');
+              const secondaryRole = normalizeRoleValue(record[columnMapping.secondaryRole] || '');
               const whyThisRole = record[columnMapping.whyThisRole] || '';
-              const pastExperience = record[columnMapping.pastExperience] || '';
+              const pastExperience = record[columnMapping.pastExperience] || 'No prior experience';
               const hasOtherClubs = normalizeBoolean(record[columnMapping.hasOtherClubs]);
 
-              // Validate required fields
+              // Validate required fields with better error messages
               const requiredFields = [
                 { field: 'fullName', value: fullName },
                 { field: 'email', value: email },
@@ -152,13 +195,13 @@ export async function POST(request) {
                 { field: 'department', value: department },
                 { field: 'yearOfStudy', value: yearOfStudy },
                 { field: 'firstPreference', value: firstPreference },
-                { field: 'whyThisRole', value: whyThisRole },
-                { field: 'pastExperience', value: pastExperience }
+                { field: 'whyThisRole', value: whyThisRole || 'Interested in contributing to E-Cell' },
+                { field: 'pastExperience', value: pastExperience || 'No prior experience' }
               ];
               
               const missingFields = requiredFields.filter(({ value }) => !value || value.trim() === '');
               if (missingFields.length > 0) {
-                errors.push(`Row ${i + 2}: Missing required fields: ${missingFields.map(f => f.field).join(', ')}`);
+                errors.push(`Row ${i + 2}: Missing required fields: ${missingFields.map(f => f.field).join(', ')}. Email: ${email || 'N/A'}`);
                 continue;
               }
 
@@ -172,7 +215,7 @@ export async function POST(request) {
                 continue;
               }
 
-              // Process data with flexible field extraction
+              // Process data with flexible field extraction and defaults
               const processedData = {
                 fullName: fullName.trim(),
                 email: email.toLowerCase().trim(),
@@ -182,8 +225,8 @@ export async function POST(request) {
                 yearOfStudy: yearOfStudy.trim(),
                 firstPreference: firstPreference.trim(),
                 secondaryRole: secondaryRole.trim(),
-                whyThisRole: whyThisRole.trim(),
-                pastExperience: pastExperience.trim(),
+                whyThisRole: (whyThisRole || 'Interested in contributing to E-Cell').trim(),
+                pastExperience: (pastExperience || 'No prior experience').trim(),
                 hasOtherClubs,
                 otherClubsDetails: record[columnMapping.otherClubsDetails] || '',
                 projectsWorkedOn: record[columnMapping.projectsWorkedOn] || '',
