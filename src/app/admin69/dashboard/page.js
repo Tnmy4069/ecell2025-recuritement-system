@@ -20,6 +20,7 @@ export default function AdminDashboard() {
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
+  const [exportLoading, setExportLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -141,6 +142,54 @@ export default function AdminDashboard() {
       case 'selected': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const handleExport = async (format) => {
+    setExportLoading(true);
+    try {
+      const params = new URLSearchParams({
+        format,
+        ...filters
+      });
+
+      const response = await fetch(`/api/applications/export?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        }
+      });
+
+      if (response.ok) {
+        if (format === 'json') {
+          const data = await response.json();
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ecell_applications_${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        } else {
+          // CSV format - browser will handle download
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ecell_applications_${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }
+      } else {
+        setError('Failed to export data');
+      }
+    } catch (err) {
+      setError('Export failed');
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -302,6 +351,7 @@ export default function AdminDashboard() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
+                {/* Template and Bulk Upload */}
                 <a
                   href="/api/applications/template"
                   download="ecell_applications_template.csv"
@@ -315,6 +365,38 @@ export default function AdminDashboard() {
                 >
                   📁 Bulk Upload CSV
                 </button>
+                
+                {/* Export Buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleExport('csv')}
+                    disabled={exportLoading}
+                    className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {exportLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Exporting...
+                      </>
+                    ) : (
+                      <>📊 Export CSV</>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleExport('json')}
+                    disabled={exportLoading}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {exportLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Exporting...
+                      </>
+                    ) : (
+                      <>📋 Export JSON</>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
