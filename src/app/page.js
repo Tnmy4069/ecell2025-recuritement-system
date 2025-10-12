@@ -131,7 +131,7 @@ export default function Home() {
               Where Ideas Meet Execution
             </h1>
             <p className="text-xl mb-8 leading-relaxed">
-              We're assembling the dream team for E-Cell 2025–26 — innovators, hustlers, creatives, and tech wizards who don't just think outside the box... they redesign it.
+              We&apos;re assembling the dream team for E-Cell 2025–26 — innovators, hustlers, creatives, and tech wizards who don&apos;t just think outside the box... they redesign it.
             </p>
             <div className="bg-red-500/20 border border-red-400 rounded-lg p-4 mb-8 inline-block">
               <p className="text-red-200 font-semibold">
@@ -145,7 +145,7 @@ export default function Home() {
               </a>
             </p>
             <p className="text-sm mt-4 text-gray-300">
-              P.S. – We're not looking for perfect. We're looking for passionate.
+              P.S. – We&apos;re not looking for perfect. We&apos;re looking for passionate.
             </p>
           </div>
 
@@ -311,7 +311,7 @@ export default function Home() {
               {/* Experience and Motivation */}
               <div>
                 <label className="block text-white font-medium mb-2">
-                  Why this role? What's the vibe? *
+                  Why this role? What&apos;s the vibe? *
                 </label>
                 <textarea
                   name="whyThisRole"
@@ -387,7 +387,7 @@ export default function Home() {
                       onChange={handleInputChange}
                       className="mr-3 w-4 h-4 text-purple-600 bg-white/20 border-white/30 rounded focus:ring-purple-500"
                     />
-                    ⏱️ 4–6 hrs/week minimum (We're not asking for your soul... just some quality time)
+                    ⏱️ 4–6 hrs/week minimum (We&apos;re not asking for your soul... just some quality time)
                   </label>
                   <label className="flex items-center text-white">
                     <input
