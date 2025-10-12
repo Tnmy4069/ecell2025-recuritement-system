@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+bulk_data_cleaned.csv
+bulk_data_final.csv
+bulk_data.csv
