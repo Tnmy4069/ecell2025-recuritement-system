@@ -45,3 +45,5 @@ bulk_data.csv
 bulk_data_fixed.csv
 .gitignore
 fix_csv.py
+*.csv
+FINAL_WORKING_TEMPLATE.csv

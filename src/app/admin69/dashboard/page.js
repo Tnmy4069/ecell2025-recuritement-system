@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import CreateApplicationModal from '../../../components/CreateApplicationModal';
+import EditApplicationModal from '../../../components/EditApplicationModal';
+import MultipleEntryFormModal from '../../../components/MultipleEntryFormModal';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -18,6 +21,10 @@ export default function AdminDashboard() {
   const [pagination, setPagination] = useState(null);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showMultipleEntryForm, setShowMultipleEntryForm] = useState(false);
+  const [editingApplication, setEditingApplication] = useState(null);
   const [adminUser, setAdminUser] = useState(null);
   const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
   const [exportLoading, setExportLoading] = useState(false);
@@ -116,6 +123,92 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       setError('Network error');
+    }
+  };
+
+  // CRUD Operations
+  const deleteApplication = async (id) => {
+    if (!confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/applications/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        }
+      });
+
+      if (response.ok) {
+        setApplications(prev => prev.filter(app => app._id !== id));
+        setSelectedApplication(null);
+        setError('');
+        fetchStats(); // Refresh stats
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to delete application');
+      }
+    } catch (err) {
+      setError('Network error occurred');
+    }
+  };
+
+  const createApplication = async (applicationData) => {
+    try {
+      const response = await fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: JSON.stringify(applicationData)
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        fetchApplications(); // Refresh the list
+        fetchStats(); // Refresh stats
+        setShowCreateForm(false);
+        setError('');
+        return true;
+      } else {
+        setError(data.error || 'Failed to create application');
+        return false;
+      }
+    } catch (err) {
+      setError('Network error occurred');
+      return false;
+    }
+  };
+
+  const updateApplication = async (id, applicationData) => {
+    try {
+      const response = await fetch(`/api/applications/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: JSON.stringify(applicationData)
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        fetchApplications(); // Refresh the list
+        setShowEditForm(false);
+        setEditingApplication(null);
+        setError('');
+        return true;
+      } else {
+        setError(data.error || 'Failed to update application');
+        return false;
+      }
+    } catch (err) {
+      setError('Network error occurred');
+      return false;
     }
   };
 
@@ -351,11 +444,25 @@ export default function AdminDashboard() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
+                {/* CRUD Action Buttons */}
+                <button
+                  onClick={() => setShowCreateForm(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  ➕ Add Application
+                </button>
+                <button
+                  onClick={() => setShowMultipleEntryForm(true)}
+                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                >
+                  📝 Multiple Entry Form
+                </button>
+                
                 {/* Template and Bulk Upload */}
                 <a
                   href="/api/applications/template"
                   download="ecell_applications_template.csv"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center"
+                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium text-center"
                 >
                   📥 Download Template
                 </a>
@@ -505,9 +612,24 @@ export default function AdminDashboard() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setSelectedApplication(app)}
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                     >
-                      View Details
+                      👁️ View
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingApplication(app);
+                        setShowEditForm(true);
+                      }}
+                      className="bg-yellow-600 text-white px-3 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button
+                      onClick={() => deleteApplication(app._id)}
+                      className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                    >
+                      🗑️ Delete
                     </button>
                   </div>
                 </div>
@@ -566,12 +688,29 @@ export default function AdminDashboard() {
                         {formatDate(app.submittedAt)}
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => setSelectedApplication(app)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          View Details
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setSelectedApplication(app)}
+                            className="text-blue-600 hover:text-blue-900 font-medium"
+                          >
+                            👁️ View
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingApplication(app);
+                              setShowEditForm(true);
+                            }}
+                            className="text-yellow-600 hover:text-yellow-900 font-medium"
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            onClick={() => deleteApplication(app._id)}
+                            className="text-red-600 hover:text-red-900 font-medium"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -681,6 +820,34 @@ export default function AdminDashboard() {
             fetchApplications();
             fetchStats();
           }}
+        />
+      )}
+
+      {/* Create Application Modal */}
+      {showCreateForm && (
+        <CreateApplicationModal 
+          onClose={() => setShowCreateForm(false)}
+          onSubmit={createApplication}
+        />
+      )}
+
+      {/* Edit Application Modal */}
+      {showEditForm && editingApplication && (
+        <EditApplicationModal 
+          application={editingApplication}
+          onClose={() => {
+            setShowEditForm(false);
+            setEditingApplication(null);
+          }}
+          onSubmit={updateApplication}
+        />
+      )}
+
+      {/* Multiple Entry Form Modal */}
+      {showMultipleEntryForm && (
+        <MultipleEntryFormModal 
+          onClose={() => setShowMultipleEntryForm(false)}
+          onSubmit={createApplication}
         />
       )}
     </div>

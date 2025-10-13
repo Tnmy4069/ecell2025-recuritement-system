@@ -129,7 +129,8 @@ export async function POST(request) {
     
     return new Promise((resolve) => {
       const results = [];
-      const errors = [];
+      const errorDetails = [];
+      const skippedRows = [];
       let columnMapping = {};
 
       parse(fileContent, {
@@ -139,7 +140,7 @@ export async function POST(request) {
       }, async (err, records) => {
         if (err) {
           resolve(Response.json(
-            { error: 'Failed to parse CSV file' },
+            { error: 'Failed to parse CSV file', details: err.message },
             { status: 400 }
           ));
           return;
@@ -151,8 +152,10 @@ export async function POST(request) {
             resolve(Response.json({
               message: 'No records found in CSV file',
               successful: 0,
-              errors: 0,
-              errorDetails: []
+              failed: 0,
+              totalRows: 0,
+              errorDetails: [],
+              skippedRows: []
             }));
             return;
           }
@@ -170,8 +173,11 @@ export async function POST(request) {
 
           console.log('Column mapping detected:', columnMapping);
 
+          const processedEmails = new Set(); // Track emails in this batch to prevent duplicates
+
           for (let i = 0; i < records.length; i++) {
             const record = records[i];
+            const rowNumber = i + 2; // +2 because CSV rows start at 1 and we skip header
             
             try {
               // Extract data using flexible column mapping
@@ -201,19 +207,67 @@ export async function POST(request) {
               
               const missingFields = requiredFields.filter(({ value }) => !value || value.trim() === '');
               if (missingFields.length > 0) {
-                errors.push(`Row ${i + 2}: Missing required fields: ${missingFields.map(f => f.field).join(', ')}. Email: ${email || 'N/A'}`);
+                const errorDetail = {
+                  row: rowNumber,
+                  email: email || 'N/A',
+                  fullName: fullName || 'N/A',
+                  error: `Missing required fields: ${missingFields.map(f => f.field).join(', ')}`,
+                  rawData: { ...record }
+                };
+                errorDetails.push(errorDetail);
+                skippedRows.push(rowNumber);
                 continue;
               }
 
-              // Check if application already exists
+              // Validate email format
+              const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+              if (!emailRegex.test(email)) {
+                const errorDetail = {
+                  row: rowNumber,
+                  email: email,
+                  fullName: fullName || 'N/A',
+                  error: 'Invalid email format',
+                  rawData: { ...record }
+                };
+                errorDetails.push(errorDetail);
+                skippedRows.push(rowNumber);
+                continue;
+              }
+
+              // Check if application already exists in database
               const existingApplication = await Application.findOne({ 
                 email: email.toLowerCase().trim()
               });
               
               if (existingApplication) {
-                errors.push(`Row ${i + 2}: Application with email '${email}' already exists`);
+                const errorDetail = {
+                  row: rowNumber,
+                  email: email,
+                  fullName: fullName || 'N/A',
+                  error: 'Application with this email already exists in database',
+                  rawData: { ...record }
+                };
+                errorDetails.push(errorDetail);
+                skippedRows.push(rowNumber);
                 continue;
               }
+
+              // Check for duplicate emails within this CSV batch
+              if (processedEmails.has(email.toLowerCase().trim())) {
+                const errorDetail = {
+                  row: rowNumber,
+                  email: email,
+                  fullName: fullName || 'N/A',
+                  error: 'Duplicate email found in this CSV batch',
+                  rawData: { ...record }
+                };
+                errorDetails.push(errorDetail);
+                skippedRows.push(rowNumber);
+                continue;
+              }
+
+              // Add email to processed set
+              processedEmails.add(email.toLowerCase().trim());
 
               // Process data with flexible field extraction and defaults
               const processedData = {
@@ -240,19 +294,41 @@ export async function POST(request) {
 
               const application = new Application(processedData);
               await application.save();
-              results.push(application._id);
+              results.push({
+                row: rowNumber,
+                email: email,
+                fullName: fullName,
+                id: application._id
+              });
 
             } catch (recordError) {
-              errors.push(`Row ${i + 2}: ${recordError.message}`);
+              const errorDetail = {
+                row: rowNumber,
+                email: record[columnMapping.email] || 'N/A',
+                fullName: record[columnMapping.fullName] || 'N/A',
+                error: recordError.message,
+                errorType: recordError.name || 'ValidationError',
+                rawData: { ...record }
+              };
+              errorDetails.push(errorDetail);
+              skippedRows.push(rowNumber);
             }
           }
 
           resolve(Response.json({
-            message: `Bulk upload completed`,
+            message: `Bulk upload completed. ${results.length} successful, ${errorDetails.length} failed.`,
+            totalRows: records.length,
             successful: results.length,
-            errors: errors.length,
-            errorDetails: errors,
-            columnMapping: columnMapping // Include detected mapping for debugging
+            failed: errorDetails.length,
+            successfulApplications: results,
+            errorDetails: errorDetails,
+            skippedRows: skippedRows,
+            columnMapping: columnMapping, // Include detected mapping for debugging
+            summary: {
+              totalProcessed: records.length,
+              successRate: `${((results.length / records.length) * 100).toFixed(1)}%`,
+              failureRate: `${((errorDetails.length / records.length) * 100).toFixed(1)}%`
+            }
           }));
 
         } catch (error) {
