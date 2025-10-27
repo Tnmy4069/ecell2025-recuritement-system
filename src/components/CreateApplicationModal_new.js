@@ -12,8 +12,8 @@ export default function CreateApplicationModal({ onClose, onSubmit }) {
     primaryRole: '',
     secondaryRole: '',
     whyThisRole: '',
-    pastExperience: '',
-    hasOtherClubs: '',
+    flexALittle: '',
+    alreadyJugglingOtherClubs: '',
     timeAvailability: ''
   });
   const [loading, setLoading] = useState(false);
@@ -173,8 +173,8 @@ export default function CreateApplicationModal({ onClose, onSubmit }) {
                   <label className="block font-medium mb-2">Already juggling other clubs?</label>
                   <input
                     type="text"
-                    name="hasOtherClubs"
-                    value={formData.hasOtherClubs}
+                    name="alreadyJugglingOtherClubs"
+                    value={formData.alreadyJugglingOtherClubs}
                     onChange={handleChange}
                     placeholder="Yes / No / Club details"
                     className="w-full border rounded px-3 py-2"
@@ -201,8 +201,8 @@ export default function CreateApplicationModal({ onClose, onSubmit }) {
               <div>
                 <label className="block font-medium mb-2">Flex a little.</label>
                 <textarea
-                  name="pastExperience"
-                  value={formData.pastExperience}
+                  name="flexALittle"
+                  value={formData.flexALittle}
                   onChange={handleChange}
                   rows="4"
                   className="w-full border rounded px-3 py-2"

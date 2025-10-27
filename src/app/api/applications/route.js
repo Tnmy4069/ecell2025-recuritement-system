@@ -51,8 +51,6 @@ export async function GET(request) {
     await dbConnect();
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page')) || 1;
-    const limit = parseInt(searchParams.get('limit')) || 20;
     const status = searchParams.get('status');
     const search = searchParams.get('search');
     const role = searchParams.get('role');
@@ -62,7 +60,7 @@ export async function GET(request) {
     if (status) filter.status = status;
     if (role) {
       filter.$or = [
-        { firstPreference: { $regex: role, $options: 'i' } },
+        { primaryRole: { $regex: role, $options: 'i' } },
         { secondaryRole: { $regex: role, $options: 'i' } }
       ];
     }
@@ -74,22 +72,18 @@ export async function GET(request) {
       ];
     }
 
-    const skip = (page - 1) * limit;
+    console.log('Filter:', JSON.stringify(filter));
 
     const applications = await Application.find(filter)
-      .sort({ submittedAt: -1 })
-      .skip(skip)
-      .limit(limit);
+      .sort({ submittedAt: -1 });
 
-    const total = await Application.countDocuments(filter);
+    console.log('Applications found:', applications.length);
+
+    const total = applications.length;
 
     return Response.json({
       applications,
-      pagination: {
-        current: page,
-        pages: Math.ceil(total / limit),
-        total
-      }
+      total
     });
   } catch (error) {
     console.error('Fetch applications error:', error);

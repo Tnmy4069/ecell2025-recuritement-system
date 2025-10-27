@@ -17,8 +17,6 @@ export default function AdminDashboard() {
     search: '',
     role: ''
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pagination, setPagination] = useState(null);
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -28,6 +26,8 @@ export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState(null);
   const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'table'
   const [exportLoading, setExportLoading] = useState(false);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+  const [showNewApplicationDropdown, setShowNewApplicationDropdown] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,7 +51,22 @@ export default function AdminDashboard() {
     if (adminUser) {
       fetchApplications();
     }
-  }, [filters, currentPage, adminUser]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filters, adminUser]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-container')) {
+        setShowExportDropdown(false);
+        setShowNewApplicationDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const fetchStats = async () => {
     try {
@@ -74,8 +89,7 @@ export default function AdminDashboard() {
     setLoading(true);
     try {
       const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: '10',
+        limit: '1000', // Get all applications
         ...filters
       });
 
@@ -88,7 +102,6 @@ export default function AdminDashboard() {
       if (response.ok) {
         const data = await response.json();
         setApplications(data.applications);
-        setPagination(data.pagination);
       } else {
         setError('Failed to fetch applications');
       }
@@ -350,7 +363,7 @@ export default function AdminDashboard() {
               <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">First Preference Role Distribution</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {stats.roleStats && stats.roleStats.map((role, index) => {
-                  const cleanRole = role._id.replace(/[📝📸🎨🎉💻⚙️🤝]\s*/, '').split('(')[0].trim();
+                  const cleanRole = role._id ? role._id.replace(/[📝📸🎨🎉💻⚙️🤝]\s*/, '').split('(')[0].trim() : 'Unknown Role';
                   const colors = [
                     'bg-purple-100 text-purple-800 border-purple-300',
                     'bg-blue-100 text-blue-800 border-blue-300',
@@ -444,19 +457,43 @@ export default function AdminDashboard() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
-                {/* CRUD Action Buttons */}
-                <button
-                  onClick={() => setShowCreateForm(true)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                >
-                  ➕ Add Application
-                </button>
-                <button
-                  onClick={() => setShowMultipleEntryForm(true)}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-                >
-                  📝 Multiple Entry Form
-                </button>
+                {/* NEW APPLICATION Dropdown */}
+                <div className="relative dropdown-container">
+                  <button
+                    onClick={() => setShowNewApplicationDropdown(!showNewApplicationDropdown)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                  >
+                    ➕ NEW APPLICATION
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  
+                  {showNewApplicationDropdown && (
+                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            setShowCreateForm(true);
+                            setShowNewApplicationDropdown(false);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          ➕ Add Application
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowMultipleEntryForm(true);
+                            setShowNewApplicationDropdown(false);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          📝 Multiple Entry Form
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 
                 {/* Template and Bulk Upload */}
                 <a
@@ -473,10 +510,10 @@ export default function AdminDashboard() {
                   📁 Bulk Upload CSV
                 </button>
                 
-                {/* Export Buttons */}
-                <div className="flex gap-2">
+                {/* EXPORT Dropdown */}
+                <div className="relative dropdown-container">
                   <button
-                    onClick={() => handleExport('csv')}
+                    onClick={() => setShowExportDropdown(!showExportDropdown)}
                     disabled={exportLoading}
                     className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
@@ -486,23 +523,39 @@ export default function AdminDashboard() {
                         Exporting...
                       </>
                     ) : (
-                      <>📊 Export CSV</>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => handleExport('json')}
-                    disabled={exportLoading}
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {exportLoading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Exporting...
+                        📊 EXPORT
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
                       </>
-                    ) : (
-                      <>📋 Export JSON</>
                     )}
                   </button>
+                  
+                  {showExportDropdown && !exportLoading && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            handleExport('csv');
+                            setShowExportDropdown(false);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          📊 Export CSV
+                        </button>
+                        <button
+                          onClick={() => {
+                            handleExport('json');
+                            setShowExportDropdown(false);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                        >
+                          📋 Export JSON
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -551,7 +604,7 @@ export default function AdminDashboard() {
             {/* Results Header */}
             <div className="flex justify-between items-center mb-4">
               <div className="text-sm text-gray-600">
-                Showing {applications.length} of {pagination?.total || 0} applications
+                Showing {applications.length} applications
                 {Object.values(filters).some(f => f) && (
                   <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
                     Filtered
@@ -589,18 +642,18 @@ export default function AdminDashboard() {
                   {/* Details */}
                   <div className="space-y-3 mb-4">
                     <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Department</p>
-                      <p className="text-sm text-gray-900 mt-1">{app.department.replace(/\s*\(.*?\)\s*/, '')}</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Branch</p>
+                      <p className="text-sm text-gray-900 mt-1">{app.branch}</p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">First Preference</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Primary Role</p>
                       <p className="text-sm text-gray-900 mt-1">
-                        {app.firstPreference.replace(/[📝📸🎨🎉💻⚙️🤝]\s*/, '').split('(')[0]}
+                        {app.primaryRole}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Year of Study</p>
-                      <p className="text-sm text-gray-900 mt-1">{app.yearOfStudy}</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Year</p>
+                      <p className="text-sm text-gray-900 mt-1">{app.year}</p>
                     </div>
                     <div>
                       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Submitted</p>
@@ -647,10 +700,10 @@ export default function AdminDashboard() {
                       Applicant
                     </th>
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Department
+                      Branch
                     </th>
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      First Preference
+                      Primary Role
                     </th>
                     <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
@@ -674,10 +727,10 @@ export default function AdminDashboard() {
                         </div>
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {app.department.replace(/\s*\(.*?\)\s*/, '')}
+                        {app.branch}
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {app.firstPreference.replace(/[📝📸🎨🎉💻⚙️🤝]\s*/, '').split('(')[0]}
+                        {app.primaryRole}
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(app.status)}`}>
@@ -720,84 +773,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Pagination */}
-        {pagination && (
-          <div className="mt-6 lg:mt-8">
-            <div className="bg-white rounded-lg shadow-md px-4 py-3 flex items-center justify-between border border-gray-200">
-              <div className="flex-1 flex justify-between sm:hidden">
-                <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <span className="text-sm text-gray-700 self-center">
-                  Page {currentPage} of {pagination.pages}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === pagination.pages}
-                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
-              </div>
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing page <span className="font-medium">{currentPage}</span> of{' '}
-                    <span className="font-medium">{pagination.pages}</span> pages ({stats?.total || 0} total)
-                  </p>
-                </div>
-                <div>
-                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                    <button
-                      onClick={() => setCurrentPage(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      ←
-                    </button>
-                    {Array.from({ length: Math.min(pagination.pages, 5) }, (_, i) => {
-                      let page;
-                      if (pagination.pages <= 5) {
-                        page = i + 1;
-                      } else if (currentPage <= 3) {
-                        page = i + 1;
-                      } else if (currentPage >= pagination.pages - 2) {
-                        page = pagination.pages - 4 + i;
-                      } else {
-                        page = currentPage - 2 + i;
-                      }
-                      
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => setCurrentPage(page)}
-                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                            page === currentPage
-                              ? 'bg-blue-50 border-blue-500 text-blue-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      );
-                    })}
-                    <button
-                      onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={currentPage === pagination.pages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      →
-                    </button>
-                  </nav>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
           </>
         )}
       </div>
@@ -888,20 +863,16 @@ function ApplicationModal({ application, onClose, onUpdate }) {
               <div><strong>Name:</strong> {application.fullName}</div>
               <div><strong>Email:</strong> {application.email}</div>
               <div><strong>WhatsApp:</strong> {application.whatsappNumber}</div>
-              <div><strong>From Nashik:</strong> {application.isFromNashik ? 'Yes' : 'No'}</div>
-              <div><strong>Department:</strong> {application.department}</div>
-              <div><strong>Year:</strong> {application.yearOfStudy}</div>
+              <div><strong>Branch:</strong> {application.branch}</div>
+              <div><strong>Year:</strong> {application.year}</div>
             </div>
 
             {/* Role Preferences */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Role Preferences</h3>
-              <div><strong>First Preference:</strong> {application.firstPreference}</div>
+              <div><strong>Primary Role:</strong> {application.primaryRole}</div>
               <div><strong>Secondary Role:</strong> {application.secondaryRole || 'None'}</div>
-              <div><strong>Other Clubs:</strong> {application.hasOtherClubs ? 'Yes' : 'No'}</div>
-              {application.otherClubsDetails && (
-                <div><strong>Other Clubs Details:</strong> {application.otherClubsDetails}</div>
-              )}
+              <div><strong>Other Clubs:</strong> {application.hasOtherClubs}</div>
             </div>
 
             {/* Experience */}
@@ -912,7 +883,7 @@ function ApplicationModal({ application, onClose, onUpdate }) {
                 <p className="mt-1 text-gray-700 bg-gray-50 p-3 rounded">{application.whyThisRole}</p>
               </div>
               <div>
-                <strong>Past Experience:</strong>
+                <strong>Flex a little:</strong>
                 <p className="mt-1 text-gray-700 bg-gray-50 p-3 rounded">{application.pastExperience}</p>
               </div>
             </div>
@@ -920,8 +891,7 @@ function ApplicationModal({ application, onClose, onUpdate }) {
             {/* Availability */}
             <div className="md:col-span-2 space-y-4">
               <h3 className="text-lg font-semibold">Availability</h3>
-              <div><strong>Time Commitment (4-6 hrs/week):</strong> {application.timeCommitment ? 'Yes' : 'No'}</div>
-              <div><strong>Available for Events:</strong> {application.availableForEvents ? 'Yes' : 'No'}</div>
+              <div><strong>Time Availability:</strong> {application.timeAvailability}</div>
             </div>
 
             {/* Admin Actions */}
@@ -1087,22 +1057,19 @@ function BulkUploadModal({ onClose, onSuccess }) {
               <div className="mt-2 text-sm text-gray-600">
                 <p className="font-medium mb-1">📋 Core fields (flexible column names accepted):</p>
                 <div className="grid grid-cols-2 gap-1 text-xs">
-                  <span>• Full Name / Student Name</span>
-                  <span>• Email / Email ID</span>
-                  <span>• Phone / WhatsApp Number</span>
-                  <span>• From Nashik / Is From Nashik</span>
-                  <span>• Department / Branch</span>
-                  <span>• Year / Year of Study</span>
-                  <span>• First Choice / First Preference</span>
-                  <span>• Second Choice / Secondary Role</span>
-                  <span>• Why Join E-Cell / Motivation</span>
-                  <span>• Experience / Past Experience</span>
-                  <span>• Other Clubs / Has Other Clubs</span>
-                  <span>• Projects / Projects Worked On</span>
-                  <span>• Time Commitment / Availability</span>
+                  <span>• Full Name</span>
+                  <span>• Email address</span>
+                  <span>• Whatsapp Number</span>
+                  <span>• Branch</span>
+                  <span>• Year</span>
+                  <span>• Primary Role</span>
+                  <span>• Secondary Role</span>
+                  <span>• Why this role? What&apos;s the vibe?</span>
+                  <span>• Flex a little.</span>
+                  <span>• Already juggling other clubs?</span>
+                  <span>• Time Availability</span>
                   <span>• Status (optional)</span>
                   <span>• Admin Remarks (optional)</span>
-                  <span>• Feedback (optional)</span>
                 </div>
                 <p className="mt-2 text-green-600">
                   ✨ <span className="font-medium">Smart Upload:</span> System will auto-detect your column format!

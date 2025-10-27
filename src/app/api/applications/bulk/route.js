@@ -4,23 +4,19 @@ import { parse } from 'csv-parse';
 
 // Flexible column mapping - handles various column names and formats
 const COLUMN_MAPPINGS = {
-  fullName: ['fullName', 'full_name', 'name', 'student_name', 'studentName', 'Full Name'],
-  email: ['email', 'emailId', 'email_id', 'emailAddress', 'email_address', 'Email', 'Email ID'],
-  whatsappNumber: ['whatsappNumber', 'whatsapp_number', 'phone', 'phoneNumber', 'phone_number', 'mobile', 'WhatsApp Number', 'Phone Number'],
-  isFromNashik: ['isFromNashik', 'is_from_nashik', 'fromNashik', 'from_nashik', 'nashik', 'From Nashik', 'Is From Nashik'],
-  department: ['department', 'dept', 'branch', 'course', 'Department', 'Branch'],
-  yearOfStudy: ['yearOfStudy', 'year_of_study', 'year', 'currentYear', 'current_year', 'Year of Study', 'Year'],
-  firstPreference: ['firstPreference', 'first_preference', 'preference1', 'role1', 'primaryRole', 'primary_role', 'First Preference', 'First Choice'],
-  secondaryRole: ['secondaryRole', 'secondary_role', 'preference2', 'role2', 'secondChoice', 'second_choice', 'Secondary Role', 'Second Preference'],
-  whyThisRole: ['whyThisRole', 'why_this_role', 'whyJoinEcell', 'why_join_ecell', 'motivation', 'reason', 'Why This Role', 'Why Join E-Cell'],
-  pastExperience: ['pastExperience', 'past_experience', 'relevantExperience', 'relevant_experience', 'experience', 'skills', 'Past Experience', 'Relevant Experience'],
-  hasOtherClubs: ['hasOtherClubs', 'has_other_clubs', 'otherClubs', 'other_clubs', 'clubs', 'Other Clubs', 'Has Other Clubs'],
-  otherClubsDetails: ['otherClubsDetails', 'other_clubs_details', 'clubDetails', 'club_details', 'Other Clubs Details'],
-  projectsWorkedOn: ['projectsWorkedOn', 'projects_worked_on', 'projects', 'project_experience', 'Projects Worked On', 'Projects'],
-  availabilityPerWeek: ['availabilityPerWeek', 'availability_per_week', 'availability', 'timeCommitment', 'time_commitment', 'Availability Per Week', 'Time Commitment'],
+  fullName: ['Full Name', 'fullName', 'full_name', 'name', 'student_name', 'studentName'],
+  email: ['Email address', 'email', 'emailId', 'email_id', 'emailAddress', 'email_address'],
+  whatsappNumber: ['Whatsapp Number  ', 'whatsappNumber', 'whatsapp_number', 'phone', 'phoneNumber', 'phone_number', 'mobile', 'WhatsApp Number'],
+  branch: ['Branch ', 'branch', 'dept', 'department', 'course'],
+  year: ['Year', 'year', 'yearOfStudy', 'year_of_study', 'currentYear', 'current_year'],
+  primaryRole: ['Primary Role', 'primaryRole', 'primary_role', 'firstPreference', 'first_preference', 'role1'],
+  secondaryRole: [' Secondary Role  ', 'secondaryRole', 'secondary_role', 'preference2', 'role2', 'secondChoice', 'second_choice'],
+  whyThisRole: ["Why this role? What's the vibe?  ", 'whyThisRole', 'why_this_role', 'motivation', 'reason'],
+  flexALittle: ['Flex a little.  ', 'flexALittle', 'flex_a_little', 'experience', 'skills', 'pastExperience'],
+  alreadyJugglingOtherClubs: ['Already juggling other clubs?  ', 'alreadyJugglingOtherClubs', 'already_juggling_other_clubs', 'otherClubs', 'other_clubs'],
+  timeAvailability: ['Time Availability ', 'timeAvailability', 'time_availability', 'availability', 'timeCommitment'],
   status: ['status', 'application_status', 'Status'],
-  adminRemarks: ['adminRemarks', 'admin_remarks', 'remarks', 'Admin Remarks'],
-  feedback: ['feedback', 'comments', 'Feedback', 'Comments']
+  adminRemarks: ['adminRemarks', 'admin_remarks', 'remarks', 'Admin Remarks']
 };
 
 // Function to find the best matching column name
@@ -184,25 +180,23 @@ export async function POST(request) {
               const fullName = record[columnMapping.fullName] || '';
               const email = record[columnMapping.email] || '';
               const whatsappNumber = record[columnMapping.whatsappNumber] || '';
-              const isFromNashik = normalizeBoolean(record[columnMapping.isFromNashik]);
-              const department = record[columnMapping.department] || '';
-              const yearOfStudy = record[columnMapping.yearOfStudy] || '';
-              const firstPreference = normalizeRoleValue(record[columnMapping.firstPreference] || '');
-              const secondaryRole = normalizeRoleValue(record[columnMapping.secondaryRole] || '');
+              const branch = record[columnMapping.branch] || '';
+              const year = record[columnMapping.year] || '';
+              const primaryRole = record[columnMapping.primaryRole] || '';
+              const secondaryRole = record[columnMapping.secondaryRole] || '';
               const whyThisRole = record[columnMapping.whyThisRole] || '';
-              const pastExperience = record[columnMapping.pastExperience] || 'No prior experience';
-              const hasOtherClubs = normalizeBoolean(record[columnMapping.hasOtherClubs]);
+              const flexALittle = record[columnMapping.flexALittle] || '';
+              const alreadyJugglingOtherClubs = record[columnMapping.alreadyJugglingOtherClubs] || '';
+              const timeAvailability = record[columnMapping.timeAvailability] || '';
 
               // Validate required fields with better error messages
               const requiredFields = [
                 { field: 'fullName', value: fullName },
                 { field: 'email', value: email },
                 { field: 'whatsappNumber', value: whatsappNumber },
-                { field: 'department', value: department },
-                { field: 'yearOfStudy', value: yearOfStudy },
-                { field: 'firstPreference', value: firstPreference },
-                { field: 'whyThisRole', value: whyThisRole || 'Interested in contributing to E-Cell' },
-                { field: 'pastExperience', value: pastExperience || 'No prior experience' }
+                { field: 'branch', value: branch },
+                { field: 'year', value: year },
+                { field: 'primaryRole', value: primaryRole }
               ];
               
               const missingFields = requiredFields.filter(({ value }) => !value || value.trim() === '');
@@ -274,23 +268,26 @@ export async function POST(request) {
                 fullName: fullName.trim(),
                 email: email.toLowerCase().trim(),
                 whatsappNumber: whatsappNumber.trim(),
-                isFromNashik,
-                department: department.trim(),
-                yearOfStudy: yearOfStudy.trim(),
-                firstPreference: firstPreference.trim(),
-                secondaryRole: secondaryRole.trim(),
-                whyThisRole: (whyThisRole || 'Interested in contributing to E-Cell').trim(),
-                pastExperience: (pastExperience || 'No prior experience').trim(),
-                hasOtherClubs,
-                otherClubsDetails: record[columnMapping.otherClubsDetails] || '',
-                projectsWorkedOn: record[columnMapping.projectsWorkedOn] || '',
-                availabilityPerWeek: record[columnMapping.availabilityPerWeek] || '',
-                timeCommitment: true, // Default to true for bulk uploads
-                availableForEvents: true, // Default to true for bulk uploads
+                branch: branch.trim(),
+                year: year.trim(),
+                primaryRole: primaryRole.trim(),
+                secondaryRole: secondaryRole.trim() || undefined,
+                whyThisRole: (whyThisRole || '').trim(),
+                flexALittle: (flexALittle || '').trim(),
+                alreadyJugglingOtherClubs: (alreadyJugglingOtherClubs || '').trim(),
+                timeAvailability: (timeAvailability || '').trim(),
                 status: record[columnMapping.status] || 'pending',
-                adminRemarks: record[columnMapping.adminRemarks] || '',
-                feedback: record[columnMapping.feedback] || ''
+                adminRemarks: record[columnMapping.adminRemarks] || ''
               };
+
+              // Remove undefined values to let mongoose use default values
+              Object.keys(processedData).forEach(key => {
+                if (processedData[key] === undefined || processedData[key] === '') {
+                  if (key === 'secondaryRole') {
+                    delete processedData[key]; // Remove completely for optional enum fields
+                  }
+                }
+              });
 
               const application = new Application(processedData);
               await application.save();

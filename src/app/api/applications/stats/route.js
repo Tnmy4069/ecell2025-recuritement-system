@@ -17,7 +17,7 @@ export async function GET() {
     const roleStats = await Application.aggregate([
       {
         $group: {
-          _id: '$firstPreference',
+          _id: '$primaryRole',
           count: { $sum: 1 }
         }
       },
@@ -26,10 +26,10 @@ export async function GET() {
       }
     ]);
 
-    const departmentStats = await Application.aggregate([
+    const branchStats = await Application.aggregate([
       {
         $group: {
-          _id: '$department',
+          _id: '$branch',
           count: { $sum: 1 }
         }
       }
@@ -38,7 +38,7 @@ export async function GET() {
     const yearStats = await Application.aggregate([
       {
         $group: {
-          _id: '$yearOfStudy',
+          _id: '$year',
           count: { $sum: 1 }
         }
       }
@@ -61,7 +61,7 @@ export async function GET() {
       total,
       statusStats,
       roleStats,
-      departmentStats,
+      branchStats,
       yearStats
     });
   } catch (error) {
