@@ -129,7 +129,7 @@ export default function Home() {
             </p>
             <div className="bg-red-500/20 border border-red-400 rounded-lg p-4 mb-8 inline-block">
               <p className="text-red-200 font-semibold">
-                🕐 Deadline: 15th October 2025
+                🕐 Deadline: 31st October 2025 | 11:59AM
               </p>
             </div>
             <p className="text-lg">
