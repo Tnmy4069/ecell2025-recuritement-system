@@ -203,6 +203,8 @@ export default function EditApplicationModal({ application, onClose, onSubmit })
                 >
                   <option value="pending">Pending</option>
                   <option value="approved">Approved</option>
+                  <option value="shortlisted">Shortlisted</option>
+                  <option value="selected">Selected</option>
                   <option value="rejected">Rejected</option>
                 </select>
               </div>

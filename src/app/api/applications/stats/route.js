@@ -46,7 +46,9 @@ export async function GET() {
 
     // Format stats
     const statusStats = stats.reduce((acc, stat) => {
-      acc[stat._id] = stat.count;
+      // Map 'approved' to 'selected' for counting
+      const status = stat._id === 'approved' ? 'selected' : stat._id;
+      acc[status] = (acc[status] || 0) + stat.count;
       return acc;
     }, {
       pending: 0,

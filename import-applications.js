@@ -70,7 +70,7 @@ const applicationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'shortlisted', 'selected', 'rejected'],
     default: 'pending'
   },
   adminRemarks: {

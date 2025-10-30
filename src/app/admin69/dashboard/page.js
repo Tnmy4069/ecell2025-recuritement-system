@@ -352,10 +352,17 @@ export default function AdminDashboard() {
                 <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Selected</h3>
                 <p className="text-2xl lg:text-3xl font-bold text-green-600">{stats.statusStats.selected || 0}</p>
               </div>
+
               <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-red-500">
                 <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Rejected</h3>
                 <p className="text-2xl lg:text-3xl font-bold text-red-600">{stats.statusStats.rejected || 0}</p>
               </div>
+
+              <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-red-500">
+                <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Approved</h3>
+                <p className="text-2xl lg:text-3xl font-bold text-red-600">{stats.statusStats.approved || 0}</p>
+              </div>
+              
             </div>
 
             {/* Role Stats */}
@@ -405,6 +412,7 @@ export default function AdminDashboard() {
                 <option value="shortlisted">Shortlisted</option>
                 <option value="selected">Selected</option>
                 <option value="rejected">Rejected</option>
+                <option value="approved">Approved</option>
               </select>
 
               <input
