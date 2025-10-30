@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "E-CELL MET — Track Application",
+  title: "E-CELL MET — 2025 Team Application",
   description: "Where Ideas Meet Execution — E-Cell MET 2025–26 application portal",
 };
 

@@ -106,7 +106,7 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-white">E-CELL MET </h1>
             <div className="space-x-4">
               <Link href="/track" className="text-white hover:text-purple-300 transition-colors">
-                Track Application
+                {/* Track Application */}
               </Link>
               {/* <Link href="/admin69" className="text-white hover:text-purple-300 transition-colors">
                 Admin
