@@ -145,26 +145,26 @@ export default function TrackApplication() {
                 <div className="bg-white/5 rounded-lg p-4">
                   <h4 className="font-semibold mb-2">📅 Submitted At</h4>
                   <p className="text-gray-300">
-                    {new Date(application.submittedAt).toLocaleDateString('en-US', {
+                    {application.submittedAt ? new Date(application.submittedAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit'
-                    })}
+                    }) : 'Submission date not available'}
                   </p>
                 </div>
 
                 <div className="bg-white/5 rounded-lg p-4">
                   <h4 className="font-semibold mb-2">🔄 Last Updated</h4>
                   <p className="text-gray-300">
-                    {new Date(application.lastUpdated).toLocaleDateString('en-US', {
+                    {application.updatedAt ? new Date(application.updatedAt).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit'
-                    })}
+                    }) : 'Not updated yet'}
                   </p>
                 </div>
 

@@ -16,7 +16,7 @@ export async function POST(request) {
 
     const application = await Application.findOne({ 
       whatsappNumber: whatsappNumber.trim() 
-    }).select('fullName email status submittedAt lastUpdated adminRemarks feedback');
+    }).select('fullName email status submittedAt updatedAt adminRemarks feedback');
 
     if (!application) {
       return Response.json(
@@ -31,7 +31,7 @@ export async function POST(request) {
         email: application.email,
         status: application.status,
         submittedAt: application.submittedAt,
-        lastUpdated: application.lastUpdated,
+        updatedAt: application.updatedAt,
         adminRemarks: application.adminRemarks || '',
         feedback: application.feedback || ''
       }

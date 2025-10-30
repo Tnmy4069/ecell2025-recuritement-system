@@ -637,6 +637,7 @@ export default function AdminDashboard() {
                 <option value="shortlisted">Shortlisted</option>
                 <option value="selected">Selected</option>
                 <option value="rejected">Rejected</option>
+                <option value="approved">Approved</option>
               </select>
 
               <input
@@ -731,14 +732,7 @@ export default function AdminDashboard() {
                   )}
                 </div>
                 
-                {/* Template and Bulk Upload */}
-                <a
-                  href="/api/applications/template"
-                  download="ecell_applications_template.csv"
-                  className="bg-gradient-to-r from-gray-100/80 to-slate-100/80 backdrop-blur-sm text-gray-700 hover:text-gray-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 font-medium text-center border border-white/40"
-                >
-                  📥 Download Template
-                </a>
+                
                 <button
                   onClick={() => setShowBulkUpload(true)}
                   className="bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-sm text-green-700 hover:text-green-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 font-medium border border-white/40"
