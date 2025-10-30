@@ -47,7 +47,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     const user = localStorage.getItem('adminUser');
-    
+
     if (!token) {
       router.push('/admin69');
       return;
@@ -193,7 +193,7 @@ export default function AdminDashboard() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         fetchApplications(); // Refresh the list
         fetchStats(); // Refresh stats
@@ -222,7 +222,7 @@ export default function AdminDashboard() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         fetchApplications(); // Refresh the list
         setShowEditForm(false);
@@ -277,21 +277,21 @@ export default function AdminDashboard() {
     if (sortConfig.key !== columnName) {
       return (
         <svg className="w-4 h-4 ml-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M5 12l5 5 5-5H5z"/>
-          <path d="M5 8l5-5 5 5H5z"/>
+          <path d="M5 12l5 5 5-5H5z" />
+          <path d="M5 8l5-5 5 5H5z" />
         </svg>
       );
     }
     if (sortConfig.direction === 'asc') {
       return (
         <svg className="w-4 h-4 ml-1 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M5 8l5-5 5 5H5z"/>
+          <path d="M5 8l5-5 5 5H5z" />
         </svg>
       );
     }
     return (
       <svg className="w-4 h-4 ml-1 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M5 12l5 5 5-5H5z"/>
+        <path d="M5 12l5 5 5-5H5z" />
       </svg>
     );
   };
@@ -434,8 +434,8 @@ export default function AdminDashboard() {
                 <p className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-rose-600 to-red-600 bg-clip-text text-transparent">{stats.statusStats.rejected || 0}</p>
               </div>
 
-             
-              
+
+
             </div>
 
             {/* Role Stats */}
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
                   </svg>
                 </button>
               </div>
-              
+
               {showStatsSection && (
                 <div className="space-y-6">
                   {/* Role Distribution */}
@@ -472,7 +472,7 @@ export default function AdminDashboard() {
                           'bg-gray-100 text-gray-800 border-gray-300'
                         ];
                         const colorClass = colors[index % colors.length];
-                        
+
                         return (
                           <div key={role._id} className={`rounded-2xl border border-white/30 p-4 ${colorClass} backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105`}>
                             <h4 className="font-semibold text-sm mb-2">{cleanRole}</h4>
@@ -494,26 +494,26 @@ export default function AdminDashboard() {
                       <div className="bg-gradient-to-br from-white/60 to-cyan-50/60 backdrop-blur-sm rounded-2xl p-4 border border-white/30 shadow-md">
                         <div className="w-full h-64 flex items-center justify-center">
                           {stats.branchStats && stats.branchStats.length > 0 ? (
-                            <Pie 
+                            <Pie
                               data={{
                                 labels: stats.branchStats.map(branch => branch._id || 'Unknown'),
                                 datasets: [{
                                   data: stats.branchStats.map(branch => branch.count),
                                   backgroundColor: [
-                                    'rgba(6, 182, 212, 0.8)',
-                                    'rgba(251, 146, 60, 0.8)',
-                                    'rgba(20, 184, 166, 0.8)',
-                                    'rgba(139, 92, 246, 0.8)',
-                                    'rgba(236, 72, 153, 0.8)',
-                                    'rgba(34, 197, 94, 0.8)',
+                                    'rgba(59, 130, 246, 0.8)',   // Blue
+                                    'rgba(234, 179, 8, 0.8)',    // Yellow
+                                    'rgba(239, 68, 68, 0.8)',    // Red
+                                    'rgba(16, 185, 129, 0.8)',   // Emerald
+                                    'rgba(168, 85, 247, 0.8)',   // Purple
+                                    'rgba(244, 114, 182, 0.8)',  // Pink
                                   ],
                                   borderColor: [
-                                    'rgba(6, 182, 212, 1)',
-                                    'rgba(251, 146, 60, 1)',
-                                    'rgba(20, 184, 166, 1)',
-                                    'rgba(139, 92, 246, 1)',
-                                    'rgba(236, 72, 153, 1)',
-                                    'rgba(34, 197, 94, 1)',
+                                    'rgba(59, 130, 246, 1)',
+                                    'rgba(234, 179, 8, 1)',
+                                    'rgba(239, 68, 68, 1)',
+                                    'rgba(16, 185, 129, 1)',
+                                    'rgba(168, 85, 247, 1)',
+                                    'rgba(244, 114, 182, 1)',
                                   ],
                                   borderWidth: 2,
                                 }]
@@ -534,7 +534,7 @@ export default function AdminDashboard() {
                                   },
                                   tooltip: {
                                     callbacks: {
-                                      label: function(context) {
+                                      label: function (context) {
                                         const percentage = ((context.parsed / stats.total) * 100).toFixed(1);
                                         return `${context.label}: ${context.parsed} (${percentage}%)`;
                                       }
@@ -559,7 +559,7 @@ export default function AdminDashboard() {
                       <div className="bg-gradient-to-br from-white/60 to-emerald-50/60 backdrop-blur-sm rounded-2xl p-4 border border-white/30 shadow-md">
                         <div className="w-full h-64 flex items-center justify-center">
                           {stats.yearStats && stats.yearStats.length > 0 ? (
-                            <Pie 
+                            <Pie
                               data={{
                                 labels: stats.yearStats.map(year => `Year ${year._id}` || 'Unknown'),
                                 datasets: [{
@@ -597,7 +597,7 @@ export default function AdminDashboard() {
                                   },
                                   tooltip: {
                                     callbacks: {
-                                      label: function(context) {
+                                      label: function (context) {
                                         const percentage = ((context.parsed / stats.total) * 100).toFixed(1);
                                         return `${context.label}: ${context.parsed} (${percentage}%)`;
                                       }
@@ -629,7 +629,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <select
                 value={filters.status}
-                onChange={(e) => setFilters({...filters, status: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                 className="bg-gradient-to-r from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-md transition-all duration-300"
               >
                 <option value="">All Status</option>
@@ -644,13 +644,13 @@ export default function AdminDashboard() {
                 type="text"
                 placeholder="Search by name, email, or phone..."
                 value={filters.search}
-                onChange={(e) => setFilters({...filters, search: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                 className="bg-gradient-to-r from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-md transition-all duration-300 sm:col-span-2 lg:col-span-1"
               />
 
               <select
                 value={filters.role}
-                onChange={(e) => setFilters({...filters, role: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, role: e.target.value })}
                 className="bg-gradient-to-r from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-md transition-all duration-300"
               >
                 <option value="">All Roles</option>
@@ -671,21 +671,19 @@ export default function AdminDashboard() {
                 <div className="flex bg-gradient-to-r from-gray-100/80 to-white/80 backdrop-blur-sm rounded-2xl p-1 shadow-inner border border-white/40">
                   <button
                     onClick={() => setViewMode('cards')}
-                    className={`px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${
-                      viewMode === 'cards' 
-                        ? 'bg-gradient-to-r from-white to-purple-50 text-purple-700 shadow-md' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                    className={`px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${viewMode === 'cards'
+                      ? 'bg-gradient-to-r from-white to-purple-50 text-purple-700 shadow-md'
+                      : 'text-gray-600 hover:text-gray-900'
+                      }`}
                   >
                     📱 Cards
                   </button>
                   <button
                     onClick={() => setViewMode('table')}
-                    className={`px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${
-                      viewMode === 'table' 
-                        ? 'bg-gradient-to-r from-white to-purple-50 text-purple-700 shadow-md' 
-                        : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                    className={`px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${viewMode === 'table'
+                      ? 'bg-gradient-to-r from-white to-purple-50 text-purple-700 shadow-md'
+                      : 'text-gray-600 hover:text-gray-900'
+                      }`}
                   >
                     📊 Table
                   </button>
@@ -705,7 +703,7 @@ export default function AdminDashboard() {
                       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </button>
-                  
+
                   {showNewApplicationDropdown && (
                     <div className="absolute left-0 mt-2 w-56 bg-gradient-to-br from-white/90 to-gray-50/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 z-10">
                       <div className="py-1">
@@ -731,15 +729,15 @@ export default function AdminDashboard() {
                     </div>
                   )}
                 </div>
-                
-                
+
+
                 <button
                   onClick={() => setShowBulkUpload(true)}
                   className="bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-sm text-green-700 hover:text-green-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 font-medium border border-white/40"
                 >
                   📁 Bulk Upload CSV
                 </button>
-                
+
                 {/* EXPORT Dropdown */}
                 <div className="relative dropdown-container">
                   <button
@@ -761,7 +759,7 @@ export default function AdminDashboard() {
                       </>
                     )}
                   </button>
-                  
+
                   {showExportDropdown && !exportLoading && (
                     <div className="absolute right-0 mt-2 w-48 bg-gradient-to-br from-white/90 to-gray-50/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 z-10">
                       <div className="py-1">
@@ -816,8 +814,8 @@ export default function AdminDashboard() {
             <div className="text-6xl mb-4">📝</div>
             <h3 className="text-lg font-medium bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">No applications found</h3>
             <p className="text-gray-600">
-              {Object.values(filters).some(f => f) 
-                ? 'Try adjusting your filters to see more results.' 
+              {Object.values(filters).some(f => f)
+                ? 'Try adjusting your filters to see more results.'
                 : 'No applications have been submitted yet.'}
             </p>
             {Object.values(filters).some(f => f) && (
@@ -852,186 +850,186 @@ export default function AdminDashboard() {
             </div>
 
             {viewMode === 'cards' ? (
-          /* Card View */
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
-            {applications.map((app) => (
-              <div key={app._id} className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/40 hover:scale-105">
-                <div className="p-4 lg:p-6">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="font-bold text-lg bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-1">{app.fullName}</h3>
-                      <p className="text-sm text-gray-600 mb-1">{app.email}</p>
-                      <p className="text-sm text-gray-600">{app.whatsappNumber}</p>
-                    </div>
-                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(app.status)}`}>
-                      {app.status}
-                    </span>
-                  </div>
-
-                  {/* Details */}
-                  <div className="space-y-3 mb-4">
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Branch</p>
-                      <p className="text-sm text-gray-900 mt-1">{app.branch}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Primary Role</p>
-                      <p className="text-sm text-gray-900 mt-1">
-                        {app.primaryRole}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Year</p>
-                      <p className="text-sm text-gray-900 mt-1">{app.year}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Submitted</p>
-                      <p className="text-sm text-gray-900 mt-1">{formatDate(app.submittedAt)}</p>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setSelectedApplication(app)}
-                      className="bg-gradient-to-r from-blue-100/80 to-indigo-100/80 backdrop-blur-sm text-blue-700 hover:text-blue-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
-                    >
-                      👁️ View
-                    </button>
-                    <button
-                      onClick={() => {
-                        setEditingApplication(app);
-                        setShowEditForm(true);
-                      }}
-                      className="bg-gradient-to-r from-yellow-100/80 to-amber-100/80 backdrop-blur-sm text-yellow-700 hover:text-yellow-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
-                    >
-                      ✏️ Edit
-                    </button>
-                    <button
-                      onClick={() => deleteApplication(app._id)}
-                      className="bg-gradient-to-r from-red-100/80 to-pink-100/80 backdrop-blur-sm text-red-700 hover:text-red-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          /* Table View */
-          <div className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg overflow-hidden border border-white/40">
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead className="bg-gradient-to-r from-gray-100/80 to-slate-100/80 backdrop-blur-sm">
-                  <tr>
-                    <th 
-                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
-                      onClick={() => handleSort('fullName')}
-                    >
-                      <div className="flex items-center">
-                        Applicant
-                        {getSortIcon('fullName')}
-                      </div>
-                    </th>
-                    <th 
-                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
-                      onClick={() => handleSort('branch')}
-                    >
-                      <div className="flex items-center">
-                        Branch
-                        {getSortIcon('branch')}
-                      </div>
-                    </th>
-                    <th 
-                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
-                      onClick={() => handleSort('primaryRole')}
-                    >
-                      <div className="flex items-center">
-                        Primary Role
-                        {getSortIcon('primaryRole')}
-                      </div>
-                    </th>
-                    <th 
-                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
-                      onClick={() => handleSort('status')}
-                    >
-                      <div className="flex items-center">
-                        Status
-                        {getSortIcon('status')}
-                      </div>
-                    </th>
-                    <th 
-                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
-                      onClick={() => handleSort('submittedAt')}
-                    >
-                      <div className="flex items-center">
-                        Submitted
-                        {getSortIcon('submittedAt')}
-                      </div>
-                    </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-gradient-to-br from-white/60 to-gray-50/60 backdrop-blur-sm divide-y divide-white/40">
-                  {sortedApplications.map((app) => (
-                    <tr key={app._id} className="hover:bg-gradient-to-r hover:from-blue-50/40 hover:to-purple-50/40 transition-all duration-300">
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">{app.fullName}</div>
-                          <div className="text-sm text-gray-600">{app.email}</div>
-                          <div className="text-sm text-gray-600">{app.whatsappNumber}</div>
+              /* Card View */
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+                {applications.map((app) => (
+                  <div key={app._id} className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/40 hover:scale-105">
+                    <div className="p-4 lg:p-6">
+                      {/* Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <h3 className="font-bold text-lg bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-1">{app.fullName}</h3>
+                          <p className="text-sm text-gray-600 mb-1">{app.email}</p>
+                          <p className="text-sm text-gray-600">{app.whatsappNumber}</p>
                         </div>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {app.branch}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {app.primaryRole}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(app.status)}`}>
+                        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(app.status)}`}>
                           {app.status}
                         </span>
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {formatDate(app.submittedAt)}
-                      </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => setSelectedApplication(app)}
-                            className="bg-gradient-to-r from-blue-100/60 to-indigo-100/60 backdrop-blur-sm text-blue-700 hover:text-blue-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
-                          >
-                            👁️ View
-                          </button>
-                          <button
-                            onClick={() => {
-                              setEditingApplication(app);
-                              setShowEditForm(true);
-                            }}
-                            className="bg-gradient-to-r from-yellow-100/60 to-amber-100/60 backdrop-blur-sm text-yellow-700 hover:text-yellow-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
-                          >
-                            ✏️ Edit
-                          </button>
-                          <button
-                            onClick={() => deleteApplication(app._id)}
-                            className="bg-gradient-to-r from-red-100/60 to-pink-100/60 backdrop-blur-sm text-red-700 hover:text-red-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
-                          >
-                            🗑️ Delete
-                          </button>
+                      </div>
+
+                      {/* Details */}
+                      <div className="space-y-3 mb-4">
+                        <div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Branch</p>
+                          <p className="text-sm text-gray-900 mt-1">{app.branch}</p>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                        <div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Primary Role</p>
+                          <p className="text-sm text-gray-900 mt-1">
+                            {app.primaryRole}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Year</p>
+                          <p className="text-sm text-gray-900 mt-1">{app.year}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Submitted</p>
+                          <p className="text-sm text-gray-900 mt-1">{formatDate(app.submittedAt)}</p>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setSelectedApplication(app)}
+                          className="bg-gradient-to-r from-blue-100/80 to-indigo-100/80 backdrop-blur-sm text-blue-700 hover:text-blue-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
+                        >
+                          👁️ View
+                        </button>
+                        <button
+                          onClick={() => {
+                            setEditingApplication(app);
+                            setShowEditForm(true);
+                          }}
+                          className="bg-gradient-to-r from-yellow-100/80 to-amber-100/80 backdrop-blur-sm text-yellow-700 hover:text-yellow-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
+                        >
+                          ✏️ Edit
+                        </button>
+                        <button
+                          onClick={() => deleteApplication(app._id)}
+                          className="bg-gradient-to-r from-red-100/80 to-pink-100/80 backdrop-blur-sm text-red-700 hover:text-red-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* Table View */
+              <div className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg overflow-hidden border border-white/40">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead className="bg-gradient-to-r from-gray-100/80 to-slate-100/80 backdrop-blur-sm">
+                      <tr>
+                        <th
+                          className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                          onClick={() => handleSort('fullName')}
+                        >
+                          <div className="flex items-center">
+                            Applicant
+                            {getSortIcon('fullName')}
+                          </div>
+                        </th>
+                        <th
+                          className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                          onClick={() => handleSort('branch')}
+                        >
+                          <div className="flex items-center">
+                            Branch
+                            {getSortIcon('branch')}
+                          </div>
+                        </th>
+                        <th
+                          className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                          onClick={() => handleSort('primaryRole')}
+                        >
+                          <div className="flex items-center">
+                            Primary Role
+                            {getSortIcon('primaryRole')}
+                          </div>
+                        </th>
+                        <th
+                          className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                          onClick={() => handleSort('status')}
+                        >
+                          <div className="flex items-center">
+                            Status
+                            {getSortIcon('status')}
+                          </div>
+                        </th>
+                        <th
+                          className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                          onClick={() => handleSort('submittedAt')}
+                        >
+                          <div className="flex items-center">
+                            Submitted
+                            {getSortIcon('submittedAt')}
+                          </div>
+                        </th>
+                        <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-gradient-to-br from-white/60 to-gray-50/60 backdrop-blur-sm divide-y divide-white/40">
+                      {sortedApplications.map((app) => (
+                        <tr key={app._id} className="hover:bg-gradient-to-r hover:from-blue-50/40 hover:to-purple-50/40 transition-all duration-300">
+                          <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div>
+                              <div className="text-sm font-medium bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">{app.fullName}</div>
+                              <div className="text-sm text-gray-600">{app.email}</div>
+                              <div className="text-sm text-gray-600">{app.whatsappNumber}</div>
+                            </div>
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {app.branch}
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {app.primaryRole}
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(app.status)}`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {formatDate(app.submittedAt)}
+                          </td>
+                          <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setSelectedApplication(app)}
+                                className="bg-gradient-to-r from-blue-100/60 to-indigo-100/60 backdrop-blur-sm text-blue-700 hover:text-blue-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
+                              >
+                                👁️ View
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingApplication(app);
+                                  setShowEditForm(true);
+                                }}
+                                className="bg-gradient-to-r from-yellow-100/60 to-amber-100/60 backdrop-blur-sm text-yellow-700 hover:text-yellow-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={() => deleteApplication(app._id)}
+                                className="bg-gradient-to-r from-red-100/60 to-pink-100/60 backdrop-blur-sm text-red-700 hover:text-red-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
           </>
         )}
@@ -1039,7 +1037,7 @@ export default function AdminDashboard() {
 
       {/* Application Details Modal */}
       {selectedApplication && (
-        <ApplicationModal 
+        <ApplicationModal
           application={selectedApplication}
           onClose={() => setSelectedApplication(null)}
           onUpdate={updateApplicationStatus}
@@ -1048,7 +1046,7 @@ export default function AdminDashboard() {
 
       {/* Bulk Upload Modal */}
       {showBulkUpload && (
-        <BulkUploadModal 
+        <BulkUploadModal
           onClose={() => setShowBulkUpload(false)}
           onSuccess={() => {
             setShowBulkUpload(false);
@@ -1060,7 +1058,7 @@ export default function AdminDashboard() {
 
       {/* Create Application Modal */}
       {showCreateForm && (
-        <CreateApplicationModal 
+        <CreateApplicationModal
           onClose={() => setShowCreateForm(false)}
           onSubmit={createApplication}
         />
@@ -1068,7 +1066,7 @@ export default function AdminDashboard() {
 
       {/* Edit Application Modal */}
       {showEditForm && editingApplication && (
-        <EditApplicationModal 
+        <EditApplicationModal
           application={editingApplication}
           onClose={() => {
             setShowEditForm(false);
@@ -1080,7 +1078,7 @@ export default function AdminDashboard() {
 
       {/* Multiple Entry Form Modal */}
       {showMultipleEntryForm && (
-        <MultipleEntryFormModal 
+        <MultipleEntryFormModal
           onClose={() => setShowMultipleEntryForm(false)}
           onSubmit={createApplication}
         />
@@ -1157,7 +1155,7 @@ function ApplicationModal({ application, onClose, onUpdate }) {
             {/* Admin Actions */}
             <div className="md:col-span-2 space-y-4 border-t pt-4">
               <h3 className="text-lg font-semibold">Admin Actions</h3>
-              
+
               <div>
                 <label className="block font-medium mb-2">Status</label>
                 <select
@@ -1338,11 +1336,10 @@ function BulkUploadModal({ onClose, onSuccess }) {
             </div>
 
             {result && (
-              <div className={`p-4 rounded-lg border ${
-                result.error 
-                  ? 'bg-red-50 text-red-700 border-red-200' 
-                  : 'bg-green-50 text-green-700 border-green-200'
-              }`}>
+              <div className={`p-4 rounded-lg border ${result.error
+                ? 'bg-red-50 text-red-700 border-red-200'
+                : 'bg-green-50 text-green-700 border-green-200'
+                }`}>
                 {result.error ? (
                   <div className="flex items-start gap-2">
                     <span className="text-red-500">❌</span>
