@@ -103,7 +103,7 @@ export default function Home() {
       <div className="bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-white">E-CELL MET Recruitment 2025-26</h1>
+            <h1 className="text-2xl font-bold text-white">E-CELL MET </h1>
             <div className="space-x-4">
               <Link href="/track" className="text-white hover:text-purple-300 transition-colors">
                 Track Application
