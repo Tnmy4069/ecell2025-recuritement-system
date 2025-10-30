@@ -1,11 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import CreateApplicationModal from '../../../components/CreateApplicationModal';
 import EditApplicationModal from '../../../components/EditApplicationModal';
 import MultipleEntryFormModal from '../../../components/MultipleEntryFormModal';
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  CategoryScale,
+  LinearScale
+} from 'chart.js';
+import { Pie } from 'react-chartjs-2';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale);
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
@@ -28,6 +40,8 @@ export default function AdminDashboard() {
   const [exportLoading, setExportLoading] = useState(false);
   const [showExportDropdown, setShowExportDropdown] = useState(false);
   const [showNewApplicationDropdown, setShowNewApplicationDropdown] = useState(false);
+  const [showStatsSection, setShowStatsSection] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const router = useRouter();
 
   useEffect(() => {
@@ -251,6 +265,68 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnName) => {
+    if (sortConfig.key !== columnName) {
+      return (
+        <svg className="w-4 h-4 ml-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M5 12l5 5 5-5H5z"/>
+          <path d="M5 8l5-5 5 5H5z"/>
+        </svg>
+      );
+    }
+    if (sortConfig.direction === 'asc') {
+      return (
+        <svg className="w-4 h-4 ml-1 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M5 8l5-5 5 5H5z"/>
+        </svg>
+      );
+    }
+    return (
+      <svg className="w-4 h-4 ml-1 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M5 12l5 5 5-5H5z"/>
+      </svg>
+    );
+  };
+
+  const sortedApplications = React.useMemo(() => {
+    if (!sortConfig.key) return applications;
+
+    return [...applications].sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // Handle date sorting
+      if (sortConfig.key === 'submittedAt') {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      }
+
+      // Handle string sorting (case insensitive)
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+      }
+      if (typeof bValue === 'string') {
+        bValue = bValue.toLowerCase();
+      }
+
+      if (aValue < bValue) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [applications, sortConfig]);
+
   const handleExport = async (format) => {
     setExportLoading(true);
     try {
@@ -306,22 +382,22 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-purple-50 to-blue-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
+      <div className="bg-gradient-to-r from-white/80 to-purple-50/80 backdrop-blur-sm shadow-lg border-b border-white/30">
+        <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-800">📊 Admin Dashboard</h1>
-              <p className="text-sm lg:text-base text-gray-600">Welcome, {adminUser.username}</p>
+            <div className="bg-gradient-to-r from-purple-100/50 to-blue-100/50 backdrop-blur-sm rounded-3xl px-6 py-4 shadow-inner border border-white/40">
+              <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">📊 Admin Dashboard</h1>
+              <p className="text-sm lg:text-base text-gray-600 font-medium">Welcome, {adminUser.username}</p>
             </div>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-              <Link href="/" className="text-purple-600 hover:text-purple-800 text-sm lg:text-base font-medium">
+              <Link href="/" className="bg-gradient-to-r from-purple-100/60 to-blue-100/60 backdrop-blur-sm text-purple-700 hover:text-purple-900 text-sm lg:text-base font-semibold px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-white/40">
                 🌐 View Site
               </Link>
               <button
                 onClick={logout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm lg:text-base font-medium"
+                className="bg-gradient-to-r from-red-100/80 to-pink-100/80 backdrop-blur-sm text-red-700 hover:text-red-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 text-sm lg:text-base font-semibold border border-white/40"
               >
                 🚪 Logout
               </button>
@@ -335,84 +411,232 @@ export default function AdminDashboard() {
         {stats && (
           <>
             {/* Status Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6 mb-6 lg:mb-8">
-              <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-blue-500">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 lg:mb-8">
+              <div className="bg-gradient-to-br from-blue-50/80 to-indigo-100/80 backdrop-blur-sm rounded-3xl shadow-lg p-4 lg:p-6 border border-white/40 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Total Applications</h3>
-                <p className="text-2xl lg:text-3xl font-bold text-blue-600">{stats.total}</p>
+                <p className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{stats.total}</p>
               </div>
-              <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-yellow-500">
+              <div className="bg-gradient-to-br from-yellow-50/80 to-amber-100/80 backdrop-blur-sm rounded-3xl shadow-lg p-4 lg:p-6 border border-white/40 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Pending</h3>
-                <p className="text-2xl lg:text-3xl font-bold text-yellow-600">{stats.statusStats.pending || 0}</p>
+                <p className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">{stats.statusStats.pending || 0}</p>
               </div>
-              <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-blue-500">
+              <div className="bg-gradient-to-br from-sky-50/80 to-cyan-100/80 backdrop-blur-sm rounded-3xl shadow-lg p-4 lg:p-6 border border-white/40 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Shortlisted</h3>
-                <p className="text-2xl lg:text-3xl font-bold text-blue-600">{stats.statusStats.shortlisted || 0}</p>
+                <p className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">{stats.statusStats.shortlisted || 0}</p>
               </div>
-              <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-green-500">
+              <div className="bg-gradient-to-br from-emerald-50/80 to-green-100/80 backdrop-blur-sm rounded-3xl shadow-lg p-4 lg:p-6 border border-white/40 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Selected</h3>
-                <p className="text-2xl lg:text-3xl font-bold text-green-600">{stats.statusStats.selected || 0}</p>
+                <p className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">{stats.statusStats.selected || 0}</p>
               </div>
 
-              <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-red-500">
+              <div className="bg-gradient-to-br from-rose-50/80 to-red-100/80 backdrop-blur-sm rounded-3xl shadow-lg p-4 lg:p-6 border border-white/40 hover:shadow-xl transition-all duration-300 hover:scale-105">
                 <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Rejected</h3>
-                <p className="text-2xl lg:text-3xl font-bold text-red-600">{stats.statusStats.rejected || 0}</p>
+                <p className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-rose-600 to-red-600 bg-clip-text text-transparent">{stats.statusStats.rejected || 0}</p>
               </div>
 
-              <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 border-l-4 border-red-500">
-                <h3 className="text-sm lg:text-lg font-semibold text-gray-700 mb-1 lg:mb-2">Approved</h3>
-                <p className="text-2xl lg:text-3xl font-bold text-red-600">{stats.statusStats.approved || 0}</p>
-              </div>
+             
               
             </div>
 
             {/* Role Stats */}
-            <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 mb-6 lg:mb-8">
-              <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-4">First Preference Role Distribution</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {stats.roleStats && stats.roleStats.map((role, index) => {
-                  const cleanRole = role._id ? role._id.replace(/[📝📸🎨🎉💻⚙️🤝]\s*/, '').split('(')[0].trim() : 'Unknown Role';
-                  const colors = [
-                    'bg-purple-100 text-purple-800 border-purple-300',
-                    'bg-blue-100 text-blue-800 border-blue-300',
-                    'bg-green-100 text-green-800 border-green-300',
-                    'bg-yellow-100 text-yellow-800 border-yellow-300',
-                    'bg-red-100 text-red-800 border-red-300',
-                    'bg-indigo-100 text-indigo-800 border-indigo-300',
-                    'bg-pink-100 text-pink-800 border-pink-300',
-                    'bg-gray-100 text-gray-800 border-gray-300'
-                  ];
-                  const colorClass = colors[index % colors.length];
-                  
-                  return (
-                    <div key={role._id} className={`rounded-lg border-2 p-4 ${colorClass}`}>
-                      <h4 className="font-semibold text-sm mb-2">{cleanRole}</h4>
-                      <p className="text-2xl font-bold">{role.count}</p>
-                      <p className="text-xs opacity-75">
-                        {((role.count / stats.total) * 100).toFixed(1)}%
-                      </p>
-                    </div>
-                  );
-                })}
+            <div className="bg-gradient-to-br from-white/60 to-purple-50/60 backdrop-blur-sm rounded-3xl shadow-lg p-4 lg:p-6 mb-6 lg:mb-8 border border-white/40">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">📊 Detailed Statistics</h3>
+                <button
+                  onClick={() => setShowStatsSection(!showStatsSection)}
+                  className="bg-gradient-to-r from-blue-100/60 to-purple-100/60 backdrop-blur-sm text-blue-700 hover:text-blue-900 font-medium text-sm flex items-center gap-2 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 border border-white/40"
+                >
+                  {showStatsSection ? '👁️ Hide Details' : '👁️ Show Details'}
+                  <svg className={`w-4 h-4 transition-transform ${showStatsSection ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
               </div>
+              
+              {showStatsSection && (
+                <div className="space-y-6">
+                  {/* Role Distribution */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">🎯 First Preference Role Distribution</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4">
+                      {stats.roleStats && stats.roleStats.map((role, index) => {
+                        const cleanRole = role._id ? role._id.replace(/[📝📸🎨🎉💻⚙️🤝]\s*/, '').split('(')[0].trim() : 'Unknown Role';
+                        const colors = [
+                          'bg-purple-100 text-purple-800 border-purple-300',
+                          'bg-blue-100 text-blue-800 border-blue-300',
+                          'bg-green-100 text-green-800 border-green-300',
+                          'bg-yellow-100 text-yellow-800 border-yellow-300',
+                          'bg-red-100 text-red-800 border-red-300',
+                          'bg-indigo-100 text-indigo-800 border-indigo-300',
+                          'bg-pink-100 text-pink-800 border-pink-300',
+                          'bg-gray-100 text-gray-800 border-gray-300'
+                        ];
+                        const colorClass = colors[index % colors.length];
+                        
+                        return (
+                          <div key={role._id} className={`rounded-2xl border border-white/30 p-4 ${colorClass} backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105`}>
+                            <h4 className="font-semibold text-sm mb-2">{cleanRole}</h4>
+                            <p className="text-2xl font-bold">{role.count}</p>
+                            <p className="text-xs opacity-75">
+                              {((role.count / stats.total) * 100).toFixed(1)}%
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Branch and Year Distribution - Pie Charts */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Branch Distribution Pie Chart */}
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4">🏫 Branch Distribution</h4>
+                      <div className="bg-gradient-to-br from-white/60 to-cyan-50/60 backdrop-blur-sm rounded-2xl p-4 border border-white/30 shadow-md">
+                        <div className="w-full h-64 flex items-center justify-center">
+                          {stats.branchStats && stats.branchStats.length > 0 ? (
+                            <Pie 
+                              data={{
+                                labels: stats.branchStats.map(branch => branch._id || 'Unknown'),
+                                datasets: [{
+                                  data: stats.branchStats.map(branch => branch.count),
+                                  backgroundColor: [
+                                    'rgba(6, 182, 212, 0.8)',
+                                    'rgba(251, 146, 60, 0.8)',
+                                    'rgba(20, 184, 166, 0.8)',
+                                    'rgba(139, 92, 246, 0.8)',
+                                    'rgba(236, 72, 153, 0.8)',
+                                    'rgba(34, 197, 94, 0.8)',
+                                  ],
+                                  borderColor: [
+                                    'rgba(6, 182, 212, 1)',
+                                    'rgba(251, 146, 60, 1)',
+                                    'rgba(20, 184, 166, 1)',
+                                    'rgba(139, 92, 246, 1)',
+                                    'rgba(236, 72, 153, 1)',
+                                    'rgba(34, 197, 94, 1)',
+                                  ],
+                                  borderWidth: 2,
+                                }]
+                              }}
+                              options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                  legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                      padding: 15,
+                                      usePointStyle: true,
+                                      font: {
+                                        size: 12
+                                      }
+                                    }
+                                  },
+                                  tooltip: {
+                                    callbacks: {
+                                      label: function(context) {
+                                        const percentage = ((context.parsed / stats.total) * 100).toFixed(1);
+                                        return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                      }
+                                    }
+                                  }
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="text-gray-500 text-center">
+                              <div className="text-4xl mb-2">📊</div>
+                              <p>No branch data available</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Year Distribution Pie Chart */}
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4">📚 Year Distribution</h4>
+                      <div className="bg-gradient-to-br from-white/60 to-emerald-50/60 backdrop-blur-sm rounded-2xl p-4 border border-white/30 shadow-md">
+                        <div className="w-full h-64 flex items-center justify-center">
+                          {stats.yearStats && stats.yearStats.length > 0 ? (
+                            <Pie 
+                              data={{
+                                labels: stats.yearStats.map(year => `Year ${year._id}` || 'Unknown'),
+                                datasets: [{
+                                  data: stats.yearStats.map(year => year.count),
+                                  backgroundColor: [
+                                    'rgba(34, 197, 94, 0.8)',
+                                    'rgba(251, 191, 36, 0.8)',
+                                    'rgba(244, 63, 94, 0.8)',
+                                    'rgba(139, 92, 246, 0.8)',
+                                    'rgba(59, 130, 246, 0.8)',
+                                  ],
+                                  borderColor: [
+                                    'rgba(34, 197, 94, 1)',
+                                    'rgba(251, 191, 36, 1)',
+                                    'rgba(244, 63, 94, 1)',
+                                    'rgba(139, 92, 246, 1)',
+                                    'rgba(59, 130, 246, 1)',
+                                  ],
+                                  borderWidth: 2,
+                                }]
+                              }}
+                              options={{
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                  legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                      padding: 15,
+                                      usePointStyle: true,
+                                      font: {
+                                        size: 12
+                                      }
+                                    }
+                                  },
+                                  tooltip: {
+                                    callbacks: {
+                                      label: function(context) {
+                                        const percentage = ((context.parsed / stats.total) * 100).toFixed(1);
+                                        return `${context.label}: ${context.parsed} (${percentage}%)`;
+                                      }
+                                    }
+                                  }
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className="text-gray-500 text-center">
+                              <div className="text-4xl mb-2">📊</div>
+                              <p>No year data available</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
 
         {/* Filters and Actions */}
-        <div className="bg-white rounded-lg shadow-md p-4 lg:p-6 mb-6 lg:mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
+        <div className="bg-gradient-to-br from-white/60 to-blue-50/60 backdrop-blur-sm rounded-3xl shadow-lg p-4 lg:p-6 mb-6 lg:mb-8 border border-white/40">
+          <div className="space-y-4">
+            {/* Filters Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <select
                 value={filters.status}
                 onChange={(e) => setFilters({...filters, status: e.target.value})}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="bg-gradient-to-r from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-md transition-all duration-300"
               >
                 <option value="">All Status</option>
                 <option value="pending">Pending</option>
                 <option value="shortlisted">Shortlisted</option>
                 <option value="selected">Selected</option>
                 <option value="rejected">Rejected</option>
-                <option value="approved">Approved</option>
               </select>
 
               <input
@@ -420,13 +644,13 @@ export default function AdminDashboard() {
                 placeholder="Search by name, email, or phone..."
                 value={filters.search}
                 onChange={(e) => setFilters({...filters, search: e.target.value})}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:col-span-2 lg:col-span-1"
+                className="bg-gradient-to-r from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-md transition-all duration-300 sm:col-span-2 lg:col-span-1"
               />
 
               <select
                 value={filters.role}
                 onChange={(e) => setFilters({...filters, role: e.target.value})}
-                className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="bg-gradient-to-r from-white/80 to-gray-50/80 backdrop-blur-sm border border-white/40 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 shadow-md transition-all duration-300"
               >
                 <option value="">All Roles</option>
                 <option value="Documentation">Documentation</option>
@@ -439,37 +663,41 @@ export default function AdminDashboard() {
               </select>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* Actions Row */}
+            <div className="flex flex-col gap-4">
               {/* View Toggle */}
-              <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setViewMode('cards')}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    viewMode === 'cards' 
-                      ? 'bg-white text-blue-600 shadow-sm' 
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  📱 Cards
-                </button>
-                <button
-                  onClick={() => setViewMode('table')}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    viewMode === 'table' 
-                      ? 'bg-white text-blue-600 shadow-sm' 
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  📊 Table
-                </button>
+              <div className="flex justify-center sm:justify-start">
+                <div className="flex bg-gradient-to-r from-gray-100/80 to-white/80 backdrop-blur-sm rounded-2xl p-1 shadow-inner border border-white/40">
+                  <button
+                    onClick={() => setViewMode('cards')}
+                    className={`px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${
+                      viewMode === 'cards' 
+                        ? 'bg-gradient-to-r from-white to-purple-50 text-purple-700 shadow-md' 
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    📱 Cards
+                  </button>
+                  <button
+                    onClick={() => setViewMode('table')}
+                    className={`px-3 py-2 text-sm font-medium rounded-xl transition-all duration-300 ${
+                      viewMode === 'table' 
+                        ? 'bg-gradient-to-r from-white to-purple-50 text-purple-700 shadow-md' 
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    📊 Table
+                  </button>
+                </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-2">
+              {/* Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
                 {/* NEW APPLICATION Dropdown */}
                 <div className="relative dropdown-container">
                   <button
                     onClick={() => setShowNewApplicationDropdown(!showNewApplicationDropdown)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                    className="bg-gradient-to-r from-blue-100/80 to-indigo-100/80 backdrop-blur-sm text-blue-700 hover:text-blue-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 font-medium flex items-center gap-2 border border-white/40"
                   >
                     ➕ NEW APPLICATION
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -478,14 +706,14 @@ export default function AdminDashboard() {
                   </button>
                   
                   {showNewApplicationDropdown && (
-                    <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <div className="absolute left-0 mt-2 w-56 bg-gradient-to-br from-white/90 to-gray-50/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 z-10">
                       <div className="py-1">
                         <button
                           onClick={() => {
                             setShowCreateForm(true);
                             setShowNewApplicationDropdown(false);
                           }}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 w-full text-left rounded-xl transition-all duration-300"
                         >
                           ➕ Add Application
                         </button>
@@ -494,7 +722,7 @@ export default function AdminDashboard() {
                             setShowMultipleEntryForm(true);
                             setShowNewApplicationDropdown(false);
                           }}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 w-full text-left rounded-xl transition-all duration-300"
                         >
                           📝 Multiple Entry Form
                         </button>
@@ -507,13 +735,13 @@ export default function AdminDashboard() {
                 <a
                   href="/api/applications/template"
                   download="ecell_applications_template.csv"
-                  className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors font-medium text-center"
+                  className="bg-gradient-to-r from-gray-100/80 to-slate-100/80 backdrop-blur-sm text-gray-700 hover:text-gray-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 font-medium text-center border border-white/40"
                 >
                   📥 Download Template
                 </a>
                 <button
                   onClick={() => setShowBulkUpload(true)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                  className="bg-gradient-to-r from-green-100/80 to-emerald-100/80 backdrop-blur-sm text-green-700 hover:text-green-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 font-medium border border-white/40"
                 >
                   📁 Bulk Upload CSV
                 </button>
@@ -523,11 +751,11 @@ export default function AdminDashboard() {
                   <button
                     onClick={() => setShowExportDropdown(!showExportDropdown)}
                     disabled={exportLoading}
-                    className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="bg-gradient-to-r from-orange-100/80 to-amber-100/80 backdrop-blur-sm text-orange-700 hover:text-orange-900 px-4 py-2 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-white/40"
                   >
                     {exportLoading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-orange-600"></div>
                         Exporting...
                       </>
                     ) : (
@@ -541,14 +769,14 @@ export default function AdminDashboard() {
                   </button>
                   
                   {showExportDropdown && !exportLoading && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                    <div className="absolute right-0 mt-2 w-48 bg-gradient-to-br from-white/90 to-gray-50/90 backdrop-blur-lg rounded-2xl shadow-xl border border-white/40 z-10">
                       <div className="py-1">
                         <button
                           onClick={() => {
                             handleExport('csv');
                             setShowExportDropdown(false);
                           }}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-orange-50/60 hover:to-amber-50/60 w-full text-left rounded-xl transition-all duration-300"
                         >
                           📊 Export CSV
                         </button>
@@ -557,7 +785,7 @@ export default function AdminDashboard() {
                             handleExport('json');
                             setShowExportDropdown(false);
                           }}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gradient-to-r hover:from-orange-50/60 hover:to-amber-50/60 w-full text-left rounded-xl transition-all duration-300"
                         >
                           📋 Export JSON
                         </button>
@@ -572,27 +800,27 @@ export default function AdminDashboard() {
 
         {/* Applications Display */}
         {loading ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <div className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg p-8 text-center border border-white/40">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading applications...</p>
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div className="bg-gradient-to-br from-red-50/80 to-pink-50/80 backdrop-blur-lg border border-red-200/40 rounded-3xl p-6 text-center shadow-lg">
             <p className="text-red-800 font-medium">❌ {error}</p>
             <button
               onClick={() => {
                 setError('');
                 fetchApplications();
               }}
-              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+              className="mt-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-2xl hover:shadow-lg transition-all duration-300 font-medium"
             >
               Try Again
             </button>
           </div>
         ) : applications.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <div className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg p-8 text-center border border-white/40">
             <div className="text-6xl mb-4">📝</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No applications found</h3>
+            <h3 className="text-lg font-medium bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">No applications found</h3>
             <p className="text-gray-600">
               {Object.values(filters).some(f => f) 
                 ? 'Try adjusting your filters to see more results.' 
@@ -601,7 +829,7 @@ export default function AdminDashboard() {
             {Object.values(filters).some(f => f) && (
               <button
                 onClick={() => setFilters({ status: '', search: '', role: '' })}
-                className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-2xl hover:shadow-lg transition-all duration-300 font-medium"
               >
                 Clear Filters
               </button>
@@ -610,7 +838,7 @@ export default function AdminDashboard() {
         ) : (
           <>
             {/* Results Header */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-4 mb-4">
               <div className="text-sm text-gray-600">
                 Showing {applications.length} applications
                 {Object.values(filters).some(f => f) && (
@@ -622,7 +850,7 @@ export default function AdminDashboard() {
               {Object.values(filters).some(f => f) && (
                 <button
                   onClick={() => setFilters({ status: '', search: '', role: '' })}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                  className="text-sm text-blue-600 hover:text-blue-800 font-medium self-start sm:self-center"
                 >
                   Clear All Filters
                 </button>
@@ -631,14 +859,14 @@ export default function AdminDashboard() {
 
             {viewMode === 'cards' ? (
           /* Card View */
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
             {applications.map((app) => (
-              <div key={app._id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
+              <div key={app._id} className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-white/40 hover:scale-105">
                 <div className="p-4 lg:p-6">
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="font-bold text-lg text-gray-900 mb-1">{app.fullName}</h3>
+                      <h3 className="font-bold text-lg bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-1">{app.fullName}</h3>
                       <p className="text-sm text-gray-600 mb-1">{app.email}</p>
                       <p className="text-sm text-gray-600">{app.whatsappNumber}</p>
                     </div>
@@ -673,7 +901,7 @@ export default function AdminDashboard() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setSelectedApplication(app)}
-                      className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      className="bg-gradient-to-r from-blue-100/80 to-indigo-100/80 backdrop-blur-sm text-blue-700 hover:text-blue-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
                     >
                       👁️ View
                     </button>
@@ -682,13 +910,13 @@ export default function AdminDashboard() {
                         setEditingApplication(app);
                         setShowEditForm(true);
                       }}
-                      className="bg-yellow-600 text-white px-3 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
+                      className="bg-gradient-to-r from-yellow-100/80 to-amber-100/80 backdrop-blur-sm text-yellow-700 hover:text-yellow-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
                     >
                       ✏️ Edit
                     </button>
                     <button
                       onClick={() => deleteApplication(app._id)}
-                      className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                      className="bg-gradient-to-r from-red-100/80 to-pink-100/80 backdrop-blur-sm text-red-700 hover:text-red-900 px-3 py-2 rounded-xl hover:shadow-md transition-all duration-300 text-sm font-medium border border-white/40"
                     >
                       🗑️ Delete
                     </button>
@@ -699,45 +927,75 @@ export default function AdminDashboard() {
           </div>
         ) : (
           /* Table View */
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-lg rounded-3xl shadow-lg overflow-hidden border border-white/40">
             <div className="overflow-x-auto">
               <table className="min-w-full">
-                <thead className="bg-gray-50">
+                <thead className="bg-gradient-to-r from-gray-100/80 to-slate-100/80 backdrop-blur-sm">
                   <tr>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Applicant
+                    <th 
+                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                      onClick={() => handleSort('fullName')}
+                    >
+                      <div className="flex items-center">
+                        Applicant
+                        {getSortIcon('fullName')}
+                      </div>
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Branch
+                    <th 
+                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                      onClick={() => handleSort('branch')}
+                    >
+                      <div className="flex items-center">
+                        Branch
+                        {getSortIcon('branch')}
+                      </div>
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Primary Role
+                    <th 
+                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                      onClick={() => handleSort('primaryRole')}
+                    >
+                      <div className="flex items-center">
+                        Primary Role
+                        {getSortIcon('primaryRole')}
+                      </div>
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                    <th 
+                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                      onClick={() => handleSort('status')}
+                    >
+                      <div className="flex items-center">
+                        Status
+                        {getSortIcon('status')}
+                      </div>
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Submitted
+                    <th 
+                      className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gradient-to-r hover:from-blue-50/60 hover:to-purple-50/60 select-none transition-all duration-300"
+                      onClick={() => handleSort('submittedAt')}
+                    >
+                      <div className="flex items-center">
+                        Submitted
+                        {getSortIcon('submittedAt')}
+                      </div>
                     </th>
-                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {applications.map((app) => (
-                    <tr key={app._id} className="hover:bg-gray-50">
+                <tbody className="bg-gradient-to-br from-white/60 to-gray-50/60 backdrop-blur-sm divide-y divide-white/40">
+                  {sortedApplications.map((app) => (
+                    <tr key={app._id} className="hover:bg-gradient-to-r hover:from-blue-50/40 hover:to-purple-50/40 transition-all duration-300">
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{app.fullName}</div>
-                          <div className="text-sm text-gray-500">{app.email}</div>
-                          <div className="text-sm text-gray-500">{app.whatsappNumber}</div>
+                          <div className="text-sm font-medium bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">{app.fullName}</div>
+                          <div className="text-sm text-gray-600">{app.email}</div>
+                          <div className="text-sm text-gray-600">{app.whatsappNumber}</div>
                         </div>
                       </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {app.branch}
                       </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {app.primaryRole}
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap">
@@ -745,14 +1003,14 @@ export default function AdminDashboard() {
                           {app.status}
                         </span>
                       </td>
-                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {formatDate(app.submittedAt)}
                       </td>
                       <td className="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex gap-2">
                           <button
                             onClick={() => setSelectedApplication(app)}
-                            className="text-blue-600 hover:text-blue-900 font-medium"
+                            className="bg-gradient-to-r from-blue-100/60 to-indigo-100/60 backdrop-blur-sm text-blue-700 hover:text-blue-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
                           >
                             👁️ View
                           </button>
@@ -761,13 +1019,13 @@ export default function AdminDashboard() {
                               setEditingApplication(app);
                               setShowEditForm(true);
                             }}
-                            className="text-yellow-600 hover:text-yellow-900 font-medium"
+                            className="bg-gradient-to-r from-yellow-100/60 to-amber-100/60 backdrop-blur-sm text-yellow-700 hover:text-yellow-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
                           >
                             ✏️ Edit
                           </button>
                           <button
                             onClick={() => deleteApplication(app._id)}
-                            className="text-red-600 hover:text-red-900 font-medium"
+                            className="bg-gradient-to-r from-red-100/60 to-pink-100/60 backdrop-blur-sm text-red-700 hover:text-red-900 px-3 py-1 rounded-xl hover:shadow-md transition-all duration-300 border border-white/40"
                           >
                             🗑️ Delete
                           </button>

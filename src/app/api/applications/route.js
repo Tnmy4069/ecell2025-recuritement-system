@@ -19,11 +19,9 @@ export async function POST(request) {
       );
     }
 
-    // Convert string booleans to actual booleans
+    // Process the data
     const processedData = {
       ...data,
-      isFromNashik: data.isFromNashik === 'true',
-      hasOtherClubs: data.hasOtherClubs === 'true',
       email: data.email.toLowerCase()
     };
 

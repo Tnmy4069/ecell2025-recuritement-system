@@ -8,17 +8,14 @@ export default function Home() {
     fullName: '',
     email: '',
     whatsappNumber: '',
-    isFromNashik: '',
-    department: '',
-    yearOfStudy: '',
-    firstPreference: '',
+    branch: '',
+    year: '',
+    primaryRole: '',
     secondaryRole: '',
     whyThisRole: '',
     pastExperience: '',
     hasOtherClubs: '',
-    otherClubsDetails: '',
-    timeCommitment: false,
-    availableForEvents: false
+    timeAvailability: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -55,17 +52,14 @@ export default function Home() {
           fullName: '',
           email: '',
           whatsappNumber: '',
-          isFromNashik: '',
-          department: '',
-          yearOfStudy: '',
-          firstPreference: '',
+          branch: '',
+          year: '',
+          primaryRole: '',
           secondaryRole: '',
           whyThisRole: '',
           pastExperience: '',
           hasOtherClubs: '',
-          otherClubsDetails: '',
-          timeCommitment: false,
-          availableForEvents: false
+          timeAvailability: ''
         });
       } else {
         setError(data.error || 'Something went wrong');
@@ -204,23 +198,6 @@ export default function Home() {
                     required
                   />
                 </div>
-
-                <div>
-                  <label className="block text-white font-medium mb-2">
-                    Are you from Nashik? *
-                  </label>
-                  <select
-                    name="isFromNashik"
-                    value={formData.isFromNashik}
-                    onChange={handleInputChange}
-                    className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-black focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    required
-                  >
-                    <option value="">Select</option>
-                    <option value="true">Yes</option>
-                    <option value="false">No</option>
-                  </select>
-                </div>
               </div>
 
               {/* Academic Information */}
@@ -230,16 +207,16 @@ export default function Home() {
                     Your Department / Branch *
                   </label>
                   <select
-                    name="department"
-                    value={formData.department}
+                    name="branch"
+                    value={formData.branch}
                     onChange={handleInputChange}
                     className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   >
-                    <option value="">Select Department</option>
-                    <option value="Computer Science & Design (CSD)">Computer Science & Design (CSD)</option>
-                    <option value="Automation & Robotics (A&R)">Automation & Robotics (A&R)</option>
-                    <option value="Civil and Environmental Engineering (CEE)">Civil and Environmental Engineering (CEE)</option>
+                    <option value="">Select Branch</option>
+                    <option value="CSD">Computer Science & Design (CSD)</option>
+                    <option value="AnR">Automation & Robotics (AnR)</option>
+                    <option value="CEE">Civil and Environmental Engineering (CEE)</option>
                   </select>
                 </div>
 
@@ -248,17 +225,17 @@ export default function Home() {
                     Year of Study *
                   </label>
                   <select
-                    name="yearOfStudy"
-                    value={formData.yearOfStudy}
+                    name="year"
+                    value={formData.year}
                     onChange={handleInputChange}
                     className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   >
                     <option value="">Select Year</option>
-                    <option value="FE (Energetic Soul? We love it.)">FE (Energetic Soul? We love it.)</option>
-                    <option value="SE (Getting warmed up, huh?)">SE (Getting warmed up, huh?)</option>
-                    <option value="TE (The sweet spot.)">TE (The sweet spot.)</option>
-                    <option value="BE (Final boss energy.)">BE (Final boss energy.)</option>
+                    <option value="FE">FE (Energetic Soul? We love it.)</option>
+                    <option value="SE">SE (Getting warmed up, huh?)</option>
+                    <option value="TE">TE (The sweet spot.)</option>
+                    <option value="BE">BE (Final boss energy.)</option>
                   </select>
                 </div>
               </div>
@@ -270,20 +247,20 @@ export default function Home() {
                     Pick Your Power Role *
                   </label>
                   <select
-                    name="firstPreference"
-                    value={formData.firstPreference}
+                    name="primaryRole"
+                    value={formData.primaryRole}
                     onChange={handleInputChange}
                     className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     required
                   >
-                    <option value="">Select First Preference</option>
-                    <option value="📝 Documentation (The storytellers)">📝 Documentation (The storytellers)</option>
-                    <option value="📸Photography/Videography ( click photos & videos that made everyone look like startup founders in a Netflix documentary)">📸Photography/Videography (Netflix vibes)</option>
-                    <option value="🎨 Design Team (Make it pretty. Make it pop. CANVA or VideoEditing Must)">🎨 Design Team (Make it pretty. Make it pop.)</option>
-                    <option value="🎉 Events (Anchoring & Chaos coordinator extraordinaire)">🎉 Events (Chaos coordinator extraordinaire)</option>
-                    <option value="💻 Technical / Web (Code is poetry, right?)">💻 Technical / Web (Code is poetry, right?)</option>
-                    <option value="⚙️ Operations (The backbone. The MVP.)">⚙️ Operations (The backbone. The MVP.)</option>
-                    <option value="🤝 Marketing & Sponsorship (Bring home the bacon)">🤝 Marketing & Sponsorship (Bring home the bacon)</option>
+                    <option value="">Select Primary Role</option>
+                    <option value="Documentation">📝 Documentation (The storytellers)</option>
+                    <option value="Media">📸 Photography/Videography (Netflix vibes)</option>
+                    <option value="Design">🎨 Design Team (Make it pretty. Make it pop.)</option>
+                    <option value="Events">🎉 Events (Chaos coordinator extraordinaire)</option>
+                    <option value="Technical">💻 Technical / Web (Code is poetry, right?)</option>
+                    <option value="Operations">⚙️ Operations (The backbone. The MVP.)</option>
+                    <option value="Marketing & Sponsorship">🤝 Marketing & Sponsorship (Bring home the bacon)</option>
                   </select>
                 </div>
 
@@ -298,12 +275,12 @@ export default function Home() {
                     className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
                     <option value="">Select Secondary Role</option>
-                    <option value="📝 Documentation (The storytellers)">📝 Documentation (The storytellers)</option>
-                    <option value="🎨 Design Team (Make it pretty. Make it pop.)">🎨 Design Team (Make it pretty. Make it pop.)</option>
-                    <option value="🎉 Events (Chaos coordinator extraordinaire)">🎉 Events (Chaos coordinator extraordinaire)</option>
-                    <option value="💻 Technical / Web (Code is poetry, right?)">💻 Technical / Web (Code is poetry, right?)</option>
-                    <option value="⚙️ Operations (The backbone. The MVP.)">⚙️ Operations (The backbone. The MVP.)</option>
-                    <option value="🤝 Marketing & Sponsorship (Bring home the bacon)">🤝 Marketing & Sponsorship (Bring home the bacon)</option>
+                    <option value="Documentation">📝 Documentation (The storytellers)</option>
+                    <option value="Design">🎨 Design Team (Make it pretty. Make it pop.)</option>
+                    <option value="Events">🎉 Events (Chaos coordinator extraordinaire)</option>
+                    <option value="Technical">💻 Technical / Web (Code is poetry, right?)</option>
+                    <option value="Operations">⚙️ Operations (The backbone. The MVP.)</option>
+                    <option value="Marketing & Sponsorship">🤝 Marketing & Sponsorship (Bring home the bacon)</option>
                   </select>
                 </div>
               </div>
@@ -348,59 +325,16 @@ export default function Home() {
                   name="hasOtherClubs"
                   value={formData.hasOtherClubs}
                   onChange={handleInputChange}
-                  className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-black focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 >
                   <option value="">Select</option>
-                  <option value="true">✅ Yes</option>
-                  <option value="false">❌ No</option>
+                  <option value="Yes">✅ Yes</option>
+                  <option value="No">❌ No</option>
                 </select>
               </div>
 
-              {formData.hasOtherClubs === 'true' && (
-                <div>
-                  <label className="block text-white font-medium mb-2">
-                    If yes, spill the tea:
-                  </label>
-                  <textarea
-                    name="otherClubsDetails"
-                    value={formData.otherClubsDetails}
-                    onChange={handleInputChange}
-                    rows="3"
-                    className="w-full p-3 rounded-lg bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Tell us about your other commitments"
-                  />
-                </div>
-              )}
-
-              {/* Availability */}
-              <div>
-                <label className="block text-white font-medium mb-4">
-                  Are you ready to dive in? (Check all that apply) *
-                </label>
-                <div className="space-y-3">
-                  <label className="flex items-center text-white">
-                    <input
-                      type="checkbox" required
-                      name="timeCommitment"
-                      checked={formData.timeCommitment}
-                      onChange={handleInputChange}
-                      className="mr-3 w-4 h-4 text-purple-600 bg-white/20 border-white/30 rounded focus:ring-purple-500"
-                    />
-                    ⏱️ 4–6 hrs/week minimum (We&apos;re not asking for your soul... just some quality time)
-                  </label>
-                  <label className="flex items-center text-white">
-                    <input
-                      type="checkbox" required
-                      name="availableForEvents"
-                      checked={formData.availableForEvents}
-                      onChange={handleInputChange}
-                      className="mr-3 w-4 h-4 text-purple-600 bg-white/20 border-white/30 rounded focus:ring-purple-500"
-                    />
-                    🌙 Available for late-night / off-campus events (When duty calls, you answer)
-                  </label>
-                </div>
-              </div>
+           
 
               <button
                 type="submit"
