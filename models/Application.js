@@ -74,6 +74,10 @@ const ApplicationSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  feedback: {
+    type: String,
+    trim: true
+  },
   
   // Timestamps
   submittedAt: {
