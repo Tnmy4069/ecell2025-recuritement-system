@@ -171,14 +171,14 @@ export default function TrackApplication() {
                 {application.adminRemarks && (
                   <div className="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4">
                     <h4 className="font-semibold mb-2 text-blue-300">💬 Admin Remarks</h4>
-                    <p className="text-gray-300">{application.adminRemarks}</p>
+                    <p className="text-gray-300">{application.status} </p>
                   </div>
                 )}
 
                 {application.feedback && (
                   <div className="bg-green-500/10 border border-green-400/30 rounded-lg p-4">
                     <h4 className="font-semibold mb-2 text-green-300">📝 Feedback</h4>
-                    <p className="text-gray-300">{application.feedback}</p>
+                    <p className="text-gray-300">{application.status}</p>
                   </div>
                 )}
               </div>
