@@ -168,20 +168,6 @@ export default function TrackApplication() {
                   </p>
                 </div>
 
-                {application.adminRemarks && (
-                  <div className="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4">
-                    <h4 className="font-semibold mb-2 text-blue-300">💬 Admin Remarks</h4>
-                    <p className="text-gray-300">{application.adminRemarks}</p>
-                  </div>
-                )}
-
-                {application.feedback && (
-                  <div className="bg-green-500/10 border border-green-400/30 rounded-lg p-4">
-                    <h4 className="font-semibold mb-2 text-green-300">📝 Feedback</h4>
-                    <p className="text-gray-300">{application.feedback}</p>
-                  </div>
-                )}
-
                 {application.status === 'selected' && (
                   <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-400/30 rounded-lg p-6">
                     <h4 className="font-semibold mb-3 text-green-300">🎉 Hey Changemaker,</h4>
