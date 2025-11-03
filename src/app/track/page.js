@@ -47,7 +47,7 @@ export default function TrackApplication() {
       case 'selected':
         return 'bg-green-500';
       case 'rejected':
-        return 'bg-red-500';
+        return 'bg-black';
       default:
         return 'bg-gray-500';
     }
@@ -56,7 +56,7 @@ export default function TrackApplication() {
   const getStatusIcon = (status) => {
     switch (status) {
       case 'pending':
-        return '⏳';
+        return 'ABSENT';
       case 'shortlisted':
         return '📋';
       case 'selected':
@@ -132,7 +132,7 @@ export default function TrackApplication() {
                   Hi, {application.fullName}!
                 </h3>
                 <div className={`inline-flex items-center px-4 py-2 rounded-full text-white font-semibold ${getStatusColor(application.status)}`}>
-                  Status: {application.status.charAt(0).toUpperCase() + application.status.slice(1)}
+                  Status: {application.status === 'rejected' ? 'Not Selected' : application.status.charAt(0).toUpperCase() + application.status.slice(1)}
                 </div>
               </div>
 
@@ -171,14 +171,63 @@ export default function TrackApplication() {
                 {application.adminRemarks && (
                   <div className="bg-blue-500/10 border border-blue-400/30 rounded-lg p-4">
                     <h4 className="font-semibold mb-2 text-blue-300">💬 Admin Remarks</h4>
-                    <p className="text-gray-300">{application.status} </p>
+                    <p className="text-gray-300">{application.adminRemarks}</p>
                   </div>
                 )}
 
                 {application.feedback && (
                   <div className="bg-green-500/10 border border-green-400/30 rounded-lg p-4">
                     <h4 className="font-semibold mb-2 text-green-300">📝 Feedback</h4>
-                    <p className="text-gray-300">{application.status}</p>
+                    <p className="text-gray-300">{application.feedback}</p>
+                  </div>
+                )}
+
+                {application.status === 'selected' && (
+                  <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-400/30 rounded-lg p-6">
+                    <h4 className="font-semibold mb-3 text-green-300">🎉 Hey Changemaker,</h4>
+                    <div className="space-y-3 text-gray-300">
+                      <p className="text-lg font-medium text-green-200">
+                        First, take a second to smile — because you&apos;ve just been shortlisted into the E‑Cell MET Core Team 2025–26 🎉
+                      </p>
+                      <p>
+                        This isn&apos;t just a selection. It&apos;s an invitation. An invitation into a family that doesn&apos;t just work together, but creates, chills, and contributes together.
+                      </p>
+                      <p>
+                        From today, you&apos;re not just a student volunteer — you&apos;re a co‑architect of experiences that will light up the campus. You&apos;ll be part of late‑night brainstorms that turn into wild ideas, hectic days that somehow feel like festivals, and memories that will outlast every poster and stage light.
+                      </p>
+                      <p className="text-green-300 font-medium">
+                        Congratulations once again — welcome to the family. Let&apos;s give our best to what&apos;s coming, and let&apos;s make this semester unforgettable.
+                      </p>
+                      <p className="text-emerald-300 font-semibold text-right">
+                        With excitement,<br />
+                        Team E‑Cell MET
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {application.status === 'rejected' && (
+                  <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 border border-orange-400/30 rounded-lg p-6">
+                    <h4 className="font-semibold mb-3 text-orange-300">🌟 A Message for You</h4>
+                    <div className="space-y-3 text-gray-300">
+                      <p className="text-lg font-medium text-orange-200">
+                        &ldquo;This isn&apos;t a no, it&apos;s a not-now&rdquo;
+                      </p>
+                      <p>
+                        First off — thank you. Truly.
+We were overwhelmed by the passion, ideas, and energy that came through during the interviews. You were amazing, and it wasn&apos;t an easy call.
+
+That said, for this tenure, we&apos;ve shortlisted students who could contribute across multiple verticals — not just for now, but for the long-term vision we&apos;re building.
+                      </p>
+                      <p>
+                       But this isn&apos;t a rejection. It&apos;s a redirection.
+Take this time to polish your skills, explore new domains, and build your own thing — free from the corporate box. And hey, we&apos;re not going anywhere.
+                      </p>
+                      <p className="text-purple-300 font-medium">
+                        Remember: Every &lsquo;not-now&rsquo; is preparing you for a bigger &lsquo;yes&rsquo; in the future! 🚀
+                         E-Cell MET has a lot of fun, high-energy initiatives coming up — and we&apos;d love to see you participate, vibe, and grow with us.
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
