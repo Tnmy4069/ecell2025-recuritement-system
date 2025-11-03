@@ -62,7 +62,7 @@ export default function TrackApplication() {
       case 'selected':
         return '🎉';
       case 'rejected':
-        return '❌';
+        return '🤞';
       default:
         return '📝';
     }
