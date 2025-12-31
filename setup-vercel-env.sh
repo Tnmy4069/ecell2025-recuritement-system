@@ -2,7 +2,7 @@
 # Run these commands in your terminal to set environment variables
 
 vercel env add MONGODB_URI production
-# When prompted, enter: mongodb+srv://robo:robo@robo.4v4au30.mongodb.net/ecell_recruitment?retryWrites=true&w=majority&appName=Robo
+# When prompted, enter your MongoDB connection URI
 
 vercel env add JWT_SECRET production  
 # When prompted, enter: your_jwt_secret_key_here_make_it_very_long_and_complex
